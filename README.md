@@ -7,4 +7,4 @@ Starting server connection:
 Start web page host:
 * In new terminal
 1. cd client
-2. npm start
+2. npm run dev
