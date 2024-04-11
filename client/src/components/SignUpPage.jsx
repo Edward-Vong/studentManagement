@@ -27,10 +27,8 @@ import React, { useState } from 'react';
                 value={userType}
                 onChange={(e) => setUserType(e.target.value)}
             >
-                <option value="">Select User Type</option>
                 <option value="student">Student</option>
                 <option value="instructor">Instructor</option>
-                <option value="administrator">Administrator</option>
             </select>
             </div>
 
