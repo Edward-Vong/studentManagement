@@ -1,15 +1,32 @@
-import express from "express";
-import cors from "cors";
-import records from "./routes/record.js";
+require('dotenv').config({path: 'config.env'});
 
-const PORT = process.env.PORT || 5050;
+const express = require('express');
+const mysql = require('mysql2');
+const bodyParser = require('body-parser');
+
 const app = express();
+const port = 3000;
 
-app.use(cors());
-app.use(express.json());
-app.use("/record", records);
+app.use(bodyParser.json());
 
-// start the Express server
-app.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
+// Set up MySQL connection
+const connection = mysql.createConnection({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME
+});
+
+connection.connect(error => {
+  if (error) throw error;
+
+  else console.log("Successfully connected to the database.");
+});
+
+app.get('/', (req, res) => {
+  res.send('Hello World!');
+});
+
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
 });
