@@ -6,7 +6,7 @@ export default function Navbar() {
         <div className="landingpage flex flex-col items-center justify-center h-screen">
         
             <div className="mb-8">
-                <img alt="EduControl_Logo" className="" src="src\assets\EduControl.png" />
+                <img alt="EduControl_Logo" className="w-48" src="../assets/EduContol.png" />
             </div>
 
             <div className="flex space-x-4">
