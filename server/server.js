@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({path: 'config.env'});
 
 const express = require('express');
 const mysql = require('mysql2');
@@ -19,7 +19,8 @@ const connection = mysql.createConnection({
 
 connection.connect(error => {
   if (error) throw error;
-  console.log("Successfully connected to the database.");
+
+  else console.log("Successfully connected to the database.");
 });
 
 app.get('/', (req, res) => {
