@@ -15,6 +15,9 @@ import AdminPage from "./components/AdminPage";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> parent of 6d871b9 (small changes teehee)
+=======
 >>>>>>> parent of 6d871b9 (small changes teehee)
 =======
 >>>>>>> parent of 6d871b9 (small changes teehee)
