@@ -101,7 +101,7 @@ const AdminPage = () => {
     }
 
     return (
-        <nav className="mt-4" aria-label="Pagination">
+        <nav className="mt-4">
 
             <ul className="flex space-x-2">
 
