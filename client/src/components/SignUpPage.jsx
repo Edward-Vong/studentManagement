@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import "../styles/SignUpPage.css";
 
     const SignUpPage = () => {
     const [userType, setUserType] = useState('');
@@ -13,9 +14,9 @@ import React, { useState } from 'react';
     };
 
     return (
-        <div className="flex justify-center items-center h-screen">
+        <div className="SignUpMain">
 
-        <div className="w-96">
+        <div className="SignUp">
 
             <h2 className="text-2xl mb-4">Sign Up</h2>
 
@@ -30,7 +31,6 @@ import React, { useState } from 'react';
                 <option value="">Select User Type</option>
                 <option value="student">Student</option>
                 <option value="instructor">Instructor</option>
-                <option value="administrator">Administrator</option>
             </select>
             </div>
 
@@ -58,7 +58,7 @@ import React, { useState } from 'react';
                 />
             </div>
 
-            <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">Sign Up</button>
+            <button type="submit">Sign Up</button>
 
             </form>
 

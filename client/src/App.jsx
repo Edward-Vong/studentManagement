@@ -11,7 +11,7 @@ function App() {
   const [count, setCount] = useState(0)
 
   return (
-    <div className="w-full p-6">
+    <div>
       <SignUpPage />
     </div>
   );
