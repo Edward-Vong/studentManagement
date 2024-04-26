@@ -8,13 +8,12 @@ import StudentPage from './components/StudentPage';
 import InstructorPage from './components/InstructorPage';
 
 
-
 function App() {
   const [count, setCount] = useState(0)
 
   return (
     <div>
-      <StudentPage />
+      <InstructorPage />
     </div>
   );
 };
