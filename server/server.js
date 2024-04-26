@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({path: 'config.env'});
 
 const express = require('express');
 const mysql = require('mysql2');
@@ -28,4 +28,26 @@ app.get('/', (req, res) => {
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
+});
+
+app.post('/signup', (req, res) => {
+  const { userType, schoolId, password } = req.body;
+
+  // Validation: Check if required fields are present
+  if (!userType || !schoolId || !password) {
+    return res.status(400).json({ error: 'Please provide all required fields' });
+  }
+
+  // Insert user data into the database
+  const sql = 'INSERT INTO users (FirstName, LastName, Email, Password, Role) VALUES (?, ?, ?, ?, ?)';
+  const values = [null, null, schoolId, password, userType];
+
+  db.query(sql, values, (err, result) => {
+    if (err) {
+      console.error('Error signing up user:', err);
+      return res.status(500).json({ error: 'An error occurred while signing up' });
+    }
+    console.log('User signed up successfully');
+    res.status(200).json({ message: 'User signed up successfully' });
+  });
 });
