@@ -32,87 +32,96 @@ const SignUpPage = () => {
                 body: JSON.stringify(userData)
             });
 
+            //if req response is NOT good 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
-            } else {
+                //else req response is good
+                } else {
                 console.log('User signed up successfully');
+
+                }
+            } catch (error) {
+                console.error('Error during sign up:', error.message);
             }
-        } catch (error) {
-            console.error('Error during sign up:', error.message);
-        }
     };
 
     return (
         <div className="SignUpMain">
-        <div className="SignUp">
-        <h2>Sign Up</h2>
-        <form onSubmit={handleSignUp}>
-            <div className="userType">
-                <label>User Type</label>
-                <select
-                    id="role"
-                    className="userTypeDD"
-                    value={role}
-                    onChange={(e) => {
-                        console.log(e.target.value); // This should log the selected value
-                        setRole(e.target.value);
-                    }}
-                >
-                    <option value="">Select User Type</option>
-                    <option value="Student">Student</option>
-                    <option value="Instructor">Instructor</option>
-                    <option value="Admin">Admin</option>
-                </select>
+
+            <div className="SignUp">
+
+                <h2>Sign Up</h2>
+                <form onSubmit={handleSignUp}>
+
+                    <div className="userType">
+                        <label>User Type</label>
+                        <select
+                            id="role"
+                            className="userTypeDD"
+                            value={role}
+                            onChange={(e) => {
+                                console.log(e.target.value); // This should log the selected value
+                                setRole(e.target.value);
+                            }}
+                        >
+                            <option value="">Select User Type</option>
+                            <option value="Student">Student</option>
+                            <option value="Instructor">Instructor</option>
+                            <option value="Admin">Admin</option>
+                        </select>
+                    </div>
+
+                    <div className="inputBoxes">
+                    <label>First Name</label>
+                        <input
+                            type="text"
+                            id="firstName"
+                            className="firstNameIN"
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
+                        />
+                    </div>
+
+                    <div className="inputBoxes">
+                        <label>Last Name</label>
+                        <input
+                            type="text"
+                            id="lastName"
+                            className="lastNameIN"
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
+                        />
+                    </div>
+
+                    <div className="inputBoxes">
+                        <label>Email</label>
+                        <input
+                            type="email"
+                            id="email"
+                            className="emailIN"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                        />
+                        </div>
+
+                    <div className="inputBoxes">
+                        <label>Password</label>
+                        <input
+                            type="password"
+                            id="password"
+                            className="passwordIN"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                        />
+                    </div>
+                    
+                    <button type="submit">Sign Up</button>
+                    
+                </form>
+
             </div>
 
-            <div className="inputBoxes">
-            <label>First Name</label>
-                <input
-                    type="text"
-                    id="firstName"
-                    className="firstNameIN"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                />
-            </div>
-
-            <div className="inputBoxes">
-                <label>Last Name</label>
-                <input
-                    type="text"
-                    id="lastName"
-                    className="lastNameIN"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                />
-            </div>
-
-            <div className="inputBoxes">
-                <label>Email</label>
-                <input
-                    type="email"
-                    id="email"
-                    className="emailIN"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                />
-                </div>
-
-            <div className="inputBoxes">
-                <label>Password</label>
-                <input
-                    type="password"
-                    id="password"
-                    className="passwordIN"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                />
-            </div>
-            
-            <button type="submit">Sign Up</button>
-        </form>
         </div>
-    </div>
     );
       
 };

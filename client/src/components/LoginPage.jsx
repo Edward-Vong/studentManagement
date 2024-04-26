@@ -1,48 +1,75 @@
 import React, { useState } from 'react';
 
     const LoginPage = () => {
-    const [schoolId, setSchoolId] = useState('');
+    //main two that's needed for login
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
-        // Handle login submission
-        console.log('School ID:', schoolId);
+        
+        //log user login inputs
+        console.log('Email:', email);
         console.log('Password:', password);
+
+        //Post 
+        try {
+            const response = await fetch('http://localhost:3000/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await response.json();
+
+            //if req response is good 
+            if (response.ok) {
+                console.log('User logged in successfully:', data.user);
+
+                //redirect user to whichever role they're part of
+            } else {
+                console.error('Error logging in:', data.message);
+            }
+        } catch (error) {
+            console.error('Error during sign in:', error.message);
+        }
     };
 
+
     return (
-        <div className="flex justify-center items-center h-screen">
+        <div className="logInMain">
 
-            <div className="w-96">
+            <div className="logIn">
 
-                <h2 className="text-2xl mb-4">Login</h2>
+                <h2>Login</h2>
 
                 <form onSubmit={handleLogin}>
 
-                <div className="mb-4">
-                    <label htmlFor="schoolId" className="block mb-1">School ID</label>
+                <div className="LPbutton">
+                    <label className="email">Email</label>
                     <input
                         type="text"
-                        id="schoolId"
-                        className="w-full p-2 border rounded"
-                        value={schoolId}
-                        onChange={(e) => setSchoolId(e.target.value)}
+                        id="email"
+                        className="emailIn"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                     />
                 </div>
 
-                <div className="mb-4">
-                    <label htmlFor="password" className="block mb-1">Password</label>
+                <div className="LPbutton">
+                    <label className="password">Password</label>
                     <input
                         type="password"
                         id="password"
-                        className="w-full p-2 border rounded"
+                        className="loginIn"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                     />
                 </div>
 
-                <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">Login</button>
+                <button type="submit">Login</button>
             
                 </form>
 
