@@ -1,5 +1,4 @@
-require('dotenv').config();
-
+require('dotenv').config({ path: 'config.env' });
 const express = require('express');
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
@@ -24,6 +23,19 @@ connection.connect(error => {
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
+});
+
+app.post('/users', (req, res) => {
+  const sql = 'INSERT INTO users SET ?';
+  const newUser = {
+      UserName: req.body.UserName,
+      DepartmentID: req.body.DepartmentID,
+      Role: req.body.Role
+  };
+  connection.query(sql, newUser, (error, results) => {
+      if (error) throw error;
+      res.status(201).send('User added');
+  });
 });
 
 app.listen(port, () => {
