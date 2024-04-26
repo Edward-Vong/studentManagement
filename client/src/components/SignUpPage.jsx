@@ -2,23 +2,29 @@ import React, { useState } from 'react';
 import "../styles/SignUpPage.css";
 
 const SignUpPage = () => {
-    const [userType, setUserType] = useState('');
-    const [schoolId, setSchoolId] = useState('');
+    // Renamed userType to role to match the database schema
+    const [role, setRole] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
-    //signup handler
+    // Signup handler
     const handleSignUp = async (e) => {
         e.preventDefault();
         
-        //user sign up info
+        // Construct userData object to match the database schema
         const userData = {
-            userType: userType,
-            schoolId: schoolId,
-            password: password
+            Role: role,
+            FirstName: firstName,
+            LastName: lastName,
+            Email: email,
+            Password: password
         };
 
+        // POST request to the server
         try {
-            const response = await fetch('/signup', {
+            const response = await fetch('http://localhost:3000/signup', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -27,66 +33,88 @@ const SignUpPage = () => {
             });
 
             if (!response.ok) {
-                throw new Error('Error signing up user');
+                throw new Error(`HTTP error! status: ${response.status}`);
+            } else {
+                console.log('User signed up successfully');
             }
-
-            console.log('User signed up successfully');
-            
         } catch (error) {
-            console.error('Error signing up user:', error.message);
-            
+            console.error('Error during sign up:', error.message);
         }
     };
 
     return (
         <div className="SignUpMain">
+        <div className="SignUp">
+        <h2>Sign Up</h2>
+        <form onSubmit={handleSignUp}>
+            <div className="userType">
+                <label>User Type</label>
+                <select
+                    id="role"
+                    className="userTypeDD"
+                    value={role}
+                    onChange={(e) => {
+                        console.log(e.target.value); // This should log the selected value
+                        setRole(e.target.value);
+                    }}
+                >
+                    <option value="">Select User Type</option>
+                    <option value="Student">Student</option>
+                    <option value="Instructor">Instructor</option>
+                    <option value="Admin">Admin</option>
+                </select>
+            </div>
 
-            <div className="SignUp">
+            <div className="inputBoxes">
+            <label>First Name</label>
+                <input
+                    type="text"
+                    id="firstName"
+                    className="firstNameIN"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                />
+            </div>
 
-                <h2>Sign Up</h2>
+            <div className="inputBoxes">
+                <label>Last Name</label>
+                <input
+                    type="text"
+                    id="lastName"
+                    className="lastNameIN"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                />
+            </div>
 
-                <div className="userType">
-
-                    <label>User Type</label>
-                    <select
-                        id="userType"
-                        className="userTypeDD"
-                        value={userType}
-                        onChange={(e) => setUserType(e.target.value)}
-                    >
-                        <option value="">Select User Type</option>
-                        <option value="student">Student</option>
-                        <option value="instructor">Instructor</option>
-                    </select>
-
+            <div className="inputBoxes">
+                <label>Email</label>
+                <input
+                    type="email"
+                    id="email"
+                    className="emailIN"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                />
                 </div>
 
-                <form onSubmit={handleSignUp}>
-                    <div className="inputBoxes">
-                        <label>School ID</label>
-                        <input
-                            type="text"
-                            id="schoolId"
-                            className="schoolIdIN"
-                            value={schoolId}
-                            onChange={(e) => setSchoolId(e.target.value)}
-                        />
-                    </div>
-                    <div className="inputBoxes">
-                        <label>Password</label>
-                        <input
-                            type="password"
-                            id="password"
-                            className="passwordIN"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                        />
-                    </div>
-                    <button type="submit">Sign Up</button>
-                </form>
+            <div className="inputBoxes">
+                <label>Password</label>
+                <input
+                    type="password"
+                    id="password"
+                    className="passwordIN"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                />
             </div>
+            
+            <button type="submit">Sign Up</button>
+        </form>
         </div>
+    </div>
     );
+      
 };
 
 export default SignUpPage;

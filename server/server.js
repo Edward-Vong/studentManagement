@@ -1,13 +1,14 @@
-require('dotenv').config({path: 'config.env'});
+require('dotenv').config({ path: 'config.env' });
 
 const express = require('express');
 const mysql = require('mysql2');
-const bodyParser = require('body-parser');
+const cors = require('cors')
 
 const app = express();
 const port = 3000;
 
-app.use(bodyParser.json());
+app.use(express.json());
+app.use(cors());
 
 // Set up MySQL connection
 const connection = mysql.createConnection({
@@ -18,49 +19,28 @@ const connection = mysql.createConnection({
 });
 
 connection.connect(error => {
-  if (error) throw error;
-  console.log("Successfully connected to the database.");
+    if (error) throw error;
+    console.log("Successfully connected to the database.");
 });
 
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
-
-app.post('/users', (req, res) => {
-  const sql = 'INSERT INTO users SET ?';
-  const newUser = {
-      UserName: req.body.UserName,
-      DepartmentID: req.body.DepartmentID,
-      Role: req.body.Role
-  };
-  connection.query(sql, newUser, (error, results) => {
-      if (error) throw error;
-      res.status(201).send('User added');
-  });
-});
 
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+    console.log(`Server is running on http://localhost:${port}`);
 });
 
 app.post('/signup', (req, res) => {
-  const { userType, schoolId, password } = req.body;
-
-  // Validation: Check if required fields are present
-  if (!userType || !schoolId || !password) {
-    return res.status(400).json({ error: 'Please provide all required fields' });
-  }
-
-  // Insert user data into the database
-  const sql = 'INSERT INTO users (FirstName, LastName, Email, Password, Role) VALUES (?, ?, ?, ?, ?)';
-  const values = [null, null, schoolId, password, userType];
-
-  db.query(sql, values, (err, result) => {
-    if (err) {
-      console.error('Error signing up user:', err);
-      return res.status(500).json({ error: 'An error occurred while signing up' });
+  console.log(req.body);
+  const { Role, FirstName, LastName, Email, Password } = req.body;
+  const query = 'INSERT INTO users (Role, FirstName, LastName, Email, Password) VALUES (?, ?, ?, ?, ?)';
+  connection.execute(query, [Role, FirstName, LastName, Email, Password], (error, results) => {
+      
+    if (error) {
+      res.status(500).json({ message: 'Error signing up user', error: error });
+    } 
+      
+    else {
+      res.status(201).json({ message: 'User signed up successfully', results: results });
     }
-    console.log('User signed up successfully');
-    res.status(200).json({ message: 'User signed up successfully' });
+
   });
 });
