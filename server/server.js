@@ -26,6 +26,19 @@ app.get('/', (req, res) => {
   res.send('Hello World!');
 });
 
+app.post('/users', (req, res) => {
+  const sql = 'INSERT INTO users SET ?';
+  const newUser = {
+      UserName: req.body.UserName,
+      DepartmentID: req.body.DepartmentID,
+      Role: req.body.Role
+  };
+  connection.query(sql, newUser, (error, results) => {
+      if (error) throw error;
+      res.status(201).send('User added');
+  });
+});
+
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
