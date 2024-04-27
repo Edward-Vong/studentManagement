@@ -1,9 +1,9 @@
 require('dotenv').config({ path: 'config.env' });
 
 const express = require('express');
-const mysql = require('mysql2');
 const cors = require('cors')
-
+const mysql = require('mysql2');
+const bcryptjs = require('bcryptjs');
 const app = express();
 const port = 3000;
 
@@ -36,27 +36,29 @@ app.listen(port, () => {
 
 
 
-//SIGN UP 
-app.post('/signup', (req, res) => {
-  console.log(req.body);
-  const { Role, FirstName, LastName, Email, Password } = req.body;
+// CREATE USER
+app.post('/signup', async (req, res) => {
+  try {
+    console.log(req.body);
 
-  //query
-  const query = 'INSERT INTO users (Role, FirstName, LastName, Email, Password) VALUES (?, ?, ?, ?, ?)';
-  connection.execute(query, [Role, FirstName, LastName, Email, Password], (error, results) => {
-      
-    if (error) {
+    const { Role, FirstName, LastName, Email, Password } = req.body;
+    const hashedPassword = await bcryptjs.hash(Password, 10);
+    // Remove this console.log
+    // console.log(hashedPassword);
+
+    // query
+    const query = 'INSERT INTO users (Role, FirstName, LastName, Email, Password) VALUES (?, ?, ?, ?, ?)';
+
+    const [results] = await connection.promise().execute(query, [Role, FirstName, LastName, Email, hashedPassword]);
+
+    // Send a success response
+    res.status(201).json({ message: 'User signed up successfully', results: results });
+  } catch (error) {
+      // Log error and send error response
+      console.log(error);
       res.status(500).json({ message: 'Error signing up user', error: error });
-    } 
-      
-    else {
-      res.status(201).json({ message: 'User signed up successfully', results: results });
     }
-
-  });
 });
-
-
 
 //LOG IN
 app.post('/login', (req, res) => {
@@ -69,14 +71,14 @@ app.post('/login', (req, res) => {
 
     if (error) {
       res.status(500).json({ message: 'Error logging in', error: error });
-    } 
-    
+    }
+
     else {
 
-      // GOod Login
+      // Good Login
       if (results.length > 0) {
         res.status(200).json({ message: 'User logged in successfully', user: results[0] });
-      } 
+      }
         // No user found with the login credentials
         else {
         res.status(401).json({ message: 'Invalid email or password' });
