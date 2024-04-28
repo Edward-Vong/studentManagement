@@ -139,7 +139,20 @@ app.post('/department', async (req, res) => {
   }
 });
 
-app.delete('/department/:id', async (req, res) => {
+app.get('/departments', async (res) => {
+  try {
+    const query = 'SELECT * FROM departments';
+    const [rows] = await connection.promise().execute(query);
+    
+    res.status(200).json({ message: 'Departments retrieved successfully', departments: rows });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Error retrieving departments', error: error });
+  }
+});
+
+
+app.delete('/department/:id', async (res) => {
   try {
     const connection = await pool.getConnection();
 
@@ -173,7 +186,21 @@ app.post('/rooms', async (req, res) => {
   }
 })
 
-app.delete('/rooms/:id', async (req, res) => {
+app.get('/rooms', async (res) => {
+  try {
+
+    const query = 'SELECT * FROM rooms';
+    const [rows] = await connection.promise().execute(query);
+    res.status(200).json({ message: 'Rooms retrieved successfully', rooms: rows });
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Error retrieving rooms', error: error });
+  }
+});
+
+
+app.delete('/rooms/:id', async (res) => {
   try {
     const connection = await pool.getConnection();
 
@@ -191,6 +218,4 @@ app.delete('/rooms/:id', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 })
-
-
 
