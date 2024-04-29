@@ -1,18 +1,20 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-    const LoginPage = () => {
+const LoginPage = () => {
     //main two that's needed for login
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const navigate = useNavigate();
 
     const handleLogin = async (e) => {
         e.preventDefault();
-        
+
         //log user login inputs
         console.log('Email:', email);
         console.log('Password:', password);
 
-        //Post 
+        //Post
         try {
             const response = await fetch('http://localhost:3000/login', {
                 method: 'POST',
@@ -21,14 +23,25 @@ import React, { useState } from 'react';
                 },
                 body: JSON.stringify({ email, password })
             });
-
             const data = await response.json();
 
-            //if req response is good 
+            //if req response is good
             if (response.ok) {
                 console.log('User logged in successfully:', data.user);
 
+                // Save the user's role in local storage
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('role', data.user.role);
+                localStorage.setItem('id', data.user.id);
+
                 //redirect user to whichever role they're part of
+                if (data.user.role === 'Admin') {
+                    navigate('/admin');
+                } else if (data.user.role === 'Student') {
+                    navigate('/student');
+                } else if (data.user.role === 'Instructor') {
+                    navigate('/instructor');
+                }
             } else {
                 console.error('Error logging in:', data.message);
             }
@@ -36,8 +49,6 @@ import React, { useState } from 'react';
             console.error('Error during sign in:', error.message);
         }
     };
-
-
     return (
         <div className="logInMain">
 
@@ -70,11 +81,11 @@ import React, { useState } from 'react';
                 </div>
 
                 <button type="submit">Login</button>
-            
+
                 </form>
 
             </div>
-        
+
         </div>
     );
 };

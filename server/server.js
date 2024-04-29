@@ -4,6 +4,7 @@ const express = require('express');
 const cors = require('cors')
 const mysql = require('mysql2');
 const bcryptjs = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const app = express();
 const port = 3000;
 
@@ -38,12 +39,9 @@ app.post('/signup', async (req, res) => {
 
     const { Role, FirstName, LastName, Email, Password } = req.body;
     const hashedPassword = await bcryptjs.hash(Password, 10);
-    // Remove this console.log
-    // console.log(hashedPassword);
 
     // query
     const query = 'INSERT INTO users (Role, FirstName, LastName, Email, Password) VALUES (?, ?, ?, ?, ?)';
-
     const [results] = await connection.promise().execute(query, [Role, FirstName, LastName, Email, hashedPassword]);
 
     // Send a success response
@@ -56,30 +54,49 @@ app.post('/signup', async (req, res) => {
 });
 
 //LOG IN
-app.post('/login', (req, res) => {
-  console.log(req.body);
+app.post('/login', async (req, res) => {
+  // console.log(req.body);
   const { email, password } = req.body;
 
   //query
-  const query = 'SELECT * FROM users WHERE Email = ? AND Password = ?';
-  connection.execute(query, [email, password], (error, results) => {
+  try {
+    const query = 'SELECT * FROM users WHERE Email = ?';
+    const [users] = await connection.promise().execute(query, [email]);
 
-    if (error) {
-      res.status(500).json({ message: 'Error logging in', error: error });
-    }
+    // Check if the user exists
+    if (users.length > 0) {
+      const user = users[0];
 
-    else {
+      // Compare provided password with stored hashed password
+      const isMatch = await bcryptjs.compare(password, user.Password);
 
-      // Good Login
-      if (results.length > 0) {
-        res.status(200).json({ message: 'User logged in successfully', user: results[0] });
-      }
-        // No user found with the login credentials
-        else {
+      if (isMatch) {
+        const payload = { id: user.UserID, role: user.Role };
+        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        // Respond with token and user details
+        res.json({
+          message: 'User logged in successfully',
+          token: token,
+          user: {
+            id: user.UserID,
+            role: user.Role,
+            firstName: user.FirstName,
+            lastName: user.LastName
+          }
+        });
+      } else {
+        // Password does not match
         res.status(401).json({ message: 'Invalid email or password' });
       }
+    } else {
+      // User not found
+      res.status(401).json({ message: 'Invalid email or password' });
     }
-  });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Error logging in', error: error });
+  }
 });
 
 app.delete('/users/:id', async (req, res) => {

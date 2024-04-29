@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+
+import { Routes, Route } from 'react-router-dom';
 import './App.css';
 import SignUpPage from "./components/SignUpPage";
 import LoginPage from "./components/LoginPage";
@@ -7,18 +7,18 @@ import LandingPage from "./components/LandingPage";
 import AdminPage from "./components/AdminPage";
 import StudentPage from './components/StudentPage';
 import InstructorPage from './components/InstructorPage';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
-  const [count, setCount] = useState(0);
 
   return (
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/admin" element={<AdminPage />} />
-        <Route path="/student" element={<StudentPage />} />
-        <Route path="/instructor" element={<InstructorPage />} />
+        <Route path="/admin" element={<ProtectedRoute component={AdminPage} roles={['Admin']} />} />
+        <Route path="/student" element={<ProtectedRoute component={StudentPage} roles={['Student']} />} />
+        <Route path="/instructor" element={<ProtectedRoute component={InstructorPage} roles={['Instructor']} />} />
       </Routes>
   );
 }
