@@ -105,7 +105,7 @@ app.delete('/users/:id', async (req, res) => {
 
 app.put('/users/:id', async (req, res) => {
   const userId = req.params.id;
-  const userData = req.body; 
+  const userData = req.body;
 
   try {
       const connection = await pool.getConnection();
@@ -143,7 +143,7 @@ app.get('/departments', async (res) => {
   try {
     const query = 'SELECT * FROM departments';
     const [rows] = await connection.promise().execute(query);
-    
+
     res.status(200).json({ message: 'Departments retrieved successfully', departments: rows });
   } catch (error) {
     console.log(error);
@@ -178,7 +178,7 @@ app.post('/rooms', async (req, res) => {
     const { Building, RoomNum, Capacity } = req.body;
     const query = 'INSERT INTO rooms (Building, RoomNum, Capacity) VALUES (?, ?, ?';
     const [results] = await connection.promise().execute(query, [Building, RoomNum, Capacity]);
-    
+
     res.status(201).json({ message: 'Room added successfully', results: results });
   } catch (error) {
     console.log(error);
@@ -218,4 +218,3 @@ app.delete('/rooms/:id', async (res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 })
-
