@@ -103,11 +103,9 @@ app.delete('/users/:id', async (req, res) => {
   const userId = req.params.id;
 
   try {
-      const connection = await pool.getConnection();
+      const query = 'DELETE FROM users WHERE UserID = ?';
 
-      const [result] = await connection.query('DELETE FROM users WHERE id = ?', [userId]);
-
-      connection.release();
+      const [result] = await connection.promise().execute(query, [userId]);
 
       if (result.affectedRows === 1) {
           res.status(200).json({ message: 'User deleted successfully' });
@@ -120,15 +118,40 @@ app.delete('/users/:id', async (req, res) => {
   }
 });
 
+// Get all Students
+app.get('/students', async (req, res) => {
+  try {
+    const query = 'SELECT * FROM users WHERE Role = "Student"';
+    const [students] = await connection.promise().execute(query);
+    res.status(200).json({ students });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching students', error });
+  }
+})
+
+// Get all instructos
+app.get('/instructors', async (req, res) => {
+  try {
+      const query = 'SELECT * FROM users WHERE Role = "Instructor"';
+      const [instructors] = await connection.promise().execute(query);
+      res.status(200).json({ instructors });
+    } catch (error) {
+      res.status(500).json({ message: 'Error fetching instructors', error });
+    }
+})
+
 app.put('/users/:id', async (req, res) => {
   const userId = req.params.id;
-  const userData = req.body;
+  const { FirstName, LastName, Email, Role } = req.body;
 
+  // console.log(`Updating user ${userId} with data`, req.body);
+
+  if (!FirstName || !LastName || !Email || !Role) {
+    return res.status(400).json({ message: 'All fields are required' });
+}
   try {
-      const connection = await pool.getConnection();
-      const [result] = await connection.query('UPDATE users SET ? WHERE id = ?', [userData, userId]);
-
-      connection.release();
+      const query = 'UPDATE users SET FirstName = ?, LastName = ?, Email = ?, Role = ? WHERE UserID = ?';
+      const [result] = await connection.promise().execute(query, [FirstName, LastName, Email, Role, userId]);
 
       if (result.affectedRows === 1) {
           res.status(200).json({ message: 'User updated successfully' });

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import "../styles/SignUpPage.css";
 
 const SignUpPage = () => {
@@ -9,10 +9,12 @@ const SignUpPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
+
+
     // Signup handler
     const handleSignUp = async (e) => {
         e.preventDefault();
-        
+
         // Construct userData object to match the database schema
         const userData = {
             Role: role,
@@ -32,7 +34,7 @@ const SignUpPage = () => {
                 body: JSON.stringify(userData)
             });
 
-            //if req response is NOT good 
+            //if req response is NOT good
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
                 //else req response is good
@@ -114,16 +116,16 @@ const SignUpPage = () => {
                             onChange={(e) => setPassword(e.target.value)}
                         />
                     </div>
-                    
+
                     <button type="submit">Sign Up</button>
-                    
+
                 </form>
 
             </div>
 
         </div>
     );
-      
+
 };
 
 export default SignUpPage;

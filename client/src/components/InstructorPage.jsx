@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 const InstructorPage = () => {
   // State for the classes the instructor is teaching
@@ -20,7 +20,7 @@ const InstructorPage = () => {
     // const data = await response.json();
     // return data;
 
-    
+
     return [
       { id: 1, name: 'Introduction to Computer Science' },
       { id: 2, name: 'Advanced Physics' },
