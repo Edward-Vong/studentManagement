@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from "react-router-dom";
 import "../styles/SignUpPage.css";
 
 const SignUpPage = () => {
@@ -8,6 +9,9 @@ const SignUpPage = () => {
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+
+    //for nagivating to login page
+    const navigate = useNavigate();
 
 
 
@@ -38,8 +42,10 @@ const SignUpPage = () => {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
                 //else req response is good
+                //and get redirected to login page
                 } else {
-                console.log('User signed up successfully');
+                    navigate('/login');
+                    console.log('User signed up successfully');
 
                 }
             } catch (error) {
@@ -69,7 +75,6 @@ const SignUpPage = () => {
                             <option value="">Select User Type</option>
                             <option value="Student">Student</option>
                             <option value="Instructor">Instructor</option>
-                            <option value="Admin">Admin</option>
                         </select>
                     </div>
 

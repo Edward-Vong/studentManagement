@@ -1,57 +1,81 @@
 import React, { useState, useEffect } from 'react';
+import NavBar from './Navbar';
 
 const StudentPage = () => {
-  // State for the classes the student is enrolled in
-  const [enrolledClasses, setEnrolledClasses] = useState([]);
+  const [courses, setCourses] = useState([]);
+  const [courseInstances, setCourseInstances] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
 
-  // Effect to fetch enrolled classes from the database
+  const fetchCourses = async () => {
+    try {
+      const courseRes = await fetch('http://localhost:3000/courses');
+      const courseData = await courseRes.json();
+      
+      setCourses(courseData.courses); 
+    } catch (error) {
+      console.error('Error fetching courses:', error);
+    }
+  };
+
+  // const fetchCourseInstances = async () => {
+  //   try {
+  //     const courseInstRes = await fetch('http://localhost:3000/courseinstances');
+  //     const courseInstData = await courseInstRes.json();
+      
+  //     setCourseInstances(courseInstData.courseInstances); 
+  //   } catch (error) {
+  //     console.error('Error fetching courses:', error);
+  //   }
+  // };
+
   useEffect(() => {
-    // Assuming you have a function to fetch enrolled classes from your backend
-    fetchEnrolledClasses()
-      .then(classes => setEnrolledClasses(classes))
-      .catch(error => console.error('Error fetching enrolled classes:', error));
+    fetchCourses();
+    // fetchCourseInstances();
   }, []);
 
-  // Function to fetch enrolled classes from the database
-  const fetchEnrolledClasses = async () => {
-    // Fetch enrolled classes from your backend
-    // Example fetch code:
-    // const response = await fetch('/api/enrolled-classes');
-    // const data = await response.json();
-    // return data;
-
-    
-    return [
-      { id: 1, name: 'Mathematics' },
-      { id: 2, name: 'History' },
-      { id: 3, name: 'Science' }
-    ];
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
   };
 
-  // Function to handle when the student selects a new class
-  const handleSelectClass = (selectedClass) => {
-    // Add the selected class to the list of enrolled classes
-    setEnrolledClasses([...enrolledClasses, selectedClass]);
-    // Update the database to reflect the enrollment (you'll need to implement this)
-    // Example: updateEnrollment(selectedClass);
-  };
+  const filteredCourses = courses.filter(course =>
+    course.CourseName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
+
     <div>
-      <h1>Student Page</h1>
-      <div>
-        <h2>Search and Select Classes</h2>
-        {/* Search and select classes component goes here /}
-        {/ Example: <ClassSearch onSelectClass={handleSelectClass} /> */}
-      </div>
-      <div>
-        <h2>Enrolled Classes</h2>
-        <ul>
-          {enrolledClasses.map((cls) => (
-            <li key={cls.id}>{cls.name}</li>
-          ))}
-        </ul>
-      </div>
+      <NavBar />
+      <h1>All Available Courses</h1>
+      <input
+        type="text"
+        placeholder="Search for a course..."
+        value={searchTerm}
+        onChange={handleSearch}
+      />
+      {filteredCourses.length === 0 ? (
+        <p>No courses available</p>
+      ) : (
+        <table>
+          <thead>
+            <tr>
+              <th>Course Name</th>
+              <th>Department</th>
+              <th>Credits</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredCourses.map(course => (
+              <tr key={course.CourseID}>
+                <td>{course.CourseName}</td>
+                <td>{course.DepartmentID}</td>
+                <td>{course.credits}</td>
+                <td>{course.Description}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 };

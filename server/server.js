@@ -226,6 +226,7 @@ app.post('/rooms', async (req, res) => {
   }
 })
 
+//getting rooms
 app.get('/rooms', async (res) => {
   try {
 
@@ -257,4 +258,36 @@ app.delete('/rooms/:id', async (res) => {
     console.error('Error removing Room', error);
     res.status(500).json({ error: 'Internal server error' });
   }
-})
+});
+
+
+
+//getting courses 
+app.get('/courses', async (req, res) => {
+
+  try {
+    const query = 'SELECT * FROM courses';
+  
+    const [courses] = await connection.promise().execute(query);
+  
+    res.status(200).json({ courses });
+  
+  } catch (error) {
+    res.status(500).json({ error: 'Error fetching courses', error });
+  }
+});
+
+//still not done
+//getting course instances
+app.get('/courseinstances', async (req, res) => {
+
+  try {
+    const query = 'SELECT * FROM courseinstances';
+
+    const [course_inst] = await connection.promise().execute(query);
+
+    res.status(200).json({ course_inst });
+  } catch (error) {
+    res.status(500).json({ error: 'Error fetching course instances', error });
+  }
+});
