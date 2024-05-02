@@ -291,3 +291,45 @@ app.get('/courseinstances', async (req, res) => {
     res.status(500).json({ error: 'Error fetching course instances', error });
   }
 });
+
+
+
+//for enrollment functionality: 
+app.post('/enroll', async (req, res) => {
+  try {
+    const { studentID, courseInstanceID } = req.body;
+    
+    // Check if the provided studentID and courseInstanceID are valid
+    const studentQuery = 'SELECT * FROM users WHERE UserID = ? AND Role = "Student"';
+    const [students] = await connection.promise().execute(studentQuery, [studentID]);
+    
+    const courseInstanceQuery = 'SELECT * FROM courseinstances WHERE CourseInstanceID = ?';
+    const [courseInstances] = await connection.promise().execute(courseInstanceQuery, [courseInstanceID]);
+
+    if (students.length === 0) {
+      return res.status(404).json({ error: 'Student not found or not valid' });
+    }
+    
+    if (courseInstances.length === 0) {
+      return res.status(404).json({ error: 'Course instance not found or not valid' });
+    }
+
+    // Check if the student is already enrolled in the course
+    const enrollmentQuery = 'SELECT * FROM enrollments WHERE StudentID = ? AND CourseInstanceID = ?';
+    const [enrollments] = await connection.promise().execute(enrollmentQuery, [studentID, courseInstanceID]);
+
+    if (enrollments.length > 0) {
+      return res.status(400).json({ error: 'Student is already enrolled in this course' });
+    }
+
+    // Insert the enrollment record
+    const insertQuery = 'INSERT INTO enrollments (StudentID, CourseInstanceID, EnrollmentDate) VALUES (?, ?, ?)';
+    const currentDate = new Date().toISOString().split('T')[0]; // Get current date
+    await connection.promise().execute(insertQuery, [studentID, courseInstanceID, currentDate]);
+
+    res.status(201).json({ message: 'Enrollment successful' });
+  } catch (error) {
+    console.error('Error enrolling student in course:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
