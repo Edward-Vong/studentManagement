@@ -1,46 +1,48 @@
-import { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 const InstructorPage = () => {
-  // State for the classes the instructor is teaching
-  const [taughtClasses, setTaughtClasses] = useState([]);
-
-  // Effect to fetch classes taught by the instructor from the database
-  useEffect(() => {
-    // Assuming you have a function to fetch classes taught by the instructor from your backend
-    fetchTaughtClasses()
-      .then(classes => setTaughtClasses(classes))
-      .catch(error => console.error('Error fetching taught classes:', error));
-  }, []);
-
-  // Function to fetch classes taught by the instructor from the database
-  const fetchTaughtClasses = async () => {
-    // Fetch taught classes from your backend
-    // Example fetch code:
-    // const response = await fetch('/api/taught-classes');
-    // const data = await response.json();
-    // return data;
-
-
-    return [
-      { id: 1, name: 'Introduction to Computer Science' },
-      { id: 2, name: 'Advanced Physics' },
-      { id: 3, name: 'Literature and Composition' }
+    // Mock data for classes and students
+    const classes = [
+        { id: 1, name: 'Mathematics', students: ['John Doe', 'Jane Smith'] },
+        { id: 2, name: 'Science', students: ['Alice Brown', 'Bob White'] },
+        // Add more classes as needed
     ];
-  };
 
-  return (
-    <div>
-      <h1>Instructor Page</h1>
-      <div>
-        <h2>Taught Classes</h2>
-        <ul>
-          {taughtClasses.map((cls) => (
-            <li key={cls.id}>{cls.name}</li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  );
+    // State for selected students
+    const [selectedStudents, setSelectedStudents] = useState([]);
+
+    // Function to handle class click
+    const handleClassClick = (students) => {
+        setSelectedStudents(students);
+    };
+
+    return (
+        <div style={{ margin: '20px' }}>
+            <h1>Instructor</h1>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <div style={{ width: '45%', marginRight: '10%', border: '1px solid black', padding: '10px' }}>
+                    <h2>Classes</h2>
+                    <ul>
+                        {classes.map(cls => (
+                            <li key={cls.id} onClick={() => handleClassClick(cls.students)} style={{ cursor: 'pointer' }}>
+                                {cls.name}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+                <div style={{ width: '45%', border: '1px solid black', padding: '10px' }}>
+                    <h2>Students</h2>
+                    <ul>
+                        {selectedStudents.map(student => (
+                            <li key={student}>
+                                {student}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    );
 };
 
 export default InstructorPage;
