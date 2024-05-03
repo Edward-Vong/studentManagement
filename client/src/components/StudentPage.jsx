@@ -11,6 +11,32 @@ const StudentPage = () => {
   const [coursesPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
 
+
+
+    // Fetch studentID when component mounts
+    const fetchStudentID = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/api/studentID', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}` // Pass the JWT token from localStorage
+          }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setStudentID(data.studentID);
+        } else {
+          throw new Error('Failed to fetch studentID');
+        }
+      } catch (error) {
+        console.error('Error fetching studentID:', error);
+      }
+    };
+
+  useEffect(() => {
+    fetchStudentID(); 
+  }, []);
+
+
   //done: getting course information
   //todo: get course instance info
   //todo: get course room info

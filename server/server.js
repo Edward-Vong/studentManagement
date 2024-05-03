@@ -279,6 +279,7 @@ app.get('/courses', async (req, res) => {
 
 
 //WORKS YIPPEEE
+//getting course instances
 app.get('/courseinstances', async (req, res) => {
   try {
     const query = 'SELECT * FROM courseinstances';
@@ -290,6 +291,30 @@ app.get('/courseinstances', async (req, res) => {
 });
 
 
+// Get studentID of currently logged-in user
+app.get('/api/studentID', async (req, res) => {
+  try {
+      // Extract userID from JWT payload
+      const token = req.headers.authorization.split(' ')[1];
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const userID = decoded.id;
+
+      // Query database to get studentID
+      const query = 'SELECT UserID FROM users WHERE UserID = ? AND Role = "Student"';
+      const [result] = await connection.promise().execute(query, [userID]);
+
+      if (result.length > 0) {
+          const studentID = result[0].UserID;
+          res.status(200).json({ studentID });
+      } else {
+          res.status(404).json({ message: 'StudentID not found for user' });
+      }
+  } catch (error) {
+      console.error('Error fetching studentID:', error);
+      res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 
 //For course enroll (student view)
 app.post('/enroll', async (req, res) => {
@@ -299,6 +324,11 @@ app.post('/enroll', async (req, res) => {
 
     //just gets irl date for when the enroll button is clicked LOLs 
     const enrollmentDate = new Date().toISOString().slice(0, 10); 
+
+    //i check
+    console.log('Student ID:', studentID);
+    console.log('Course Instance ID:', courseInstanceID);
+    console.log('Enrollment Date:', enrollmentDate);
 
     const query = 'INSERT INTO enrollments (StudentID, CourseInstanceID, EnrollmentDate) VALUES (?, ?, ?)';
     const [result] = await connection.promise().execute(query, [studentID, courseInstanceID, enrollmentDate]);
