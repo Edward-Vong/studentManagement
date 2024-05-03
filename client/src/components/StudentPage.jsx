@@ -4,10 +4,16 @@ import NavBar from './Navbar';
 
 const StudentPage = () => {
   const [courses, setCourses] = useState([]);
-  const [courseInstances, setCourseInstances] = useState([]);
+  //const [courseInstances, setCourseInstances] = useState([]);
+
+  //for the IDs needed to pass into enrollments
+  const [studentID, setStudentID] = useState('');
+  //const [courseInstanceID, setCourseInstanceID] = useState('');
+
+  //for search bar
   const [searchTerm, setSearchTerm] = useState('');
 
-  const [studentID, setStudentID] = useState('');
+  //for pagination
   const [coursesPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -37,6 +43,27 @@ const StudentPage = () => {
   }, []);
 
 
+  // const fetchCourseInstanceIDs = async () => {
+  //   try {
+  //     const response = await fetch('http://localhost:3000/courseinstances');
+  //     if (response.ok) {
+  //       const data = await response.json();
+  //       // Extract CourseInstanceIDs from the response data and store them in state
+  //       const instanceIDs = data.courseInstances.map(instance => instance.CourseInstanceID);
+  //       setCourseInstanceID(instanceIDs);
+  //     } else {
+  //       throw new Error('Failed to fetch course instance IDs');
+  //     }
+  //   } catch (error) {
+  //     console.error('Error fetching course instance IDs:', error);
+  //   }
+  // };
+  
+  // useEffect(() => {
+  //   fetchCourseInstanceIDs();
+  // }, []);
+
+
   //done: getting course information
   //todo: get course instance info
   //todo: get course room info
@@ -44,27 +71,44 @@ const StudentPage = () => {
     try {
       const courseRes = await fetch('http://localhost:3000/courses');
       const courseData = await courseRes.json();
-      setCourses(courseData.courses); 
-
-      const courseInstRes = await fetch('http://localhost:3000/courseinstances');
-      const courseInstData = await courseInstRes.json();
-      setCourseInstances(courseInstData.courseInstances); 
-
+      setCourses(courseData.courses);
     } catch (error) {
       console.error('Error fetching course information:', error);
     }
   };
+  
+  // const fetchCourseInstances = async () => {
+  //   try {
+  //     const courseInstRes = await fetch('http://localhost:3000/courseinstances');
+  //     const courseInstData = await courseInstRes.json();
+  //     setCourseInstances(courseInstData.courseInstances);
+  //   } catch (error) {
+  //     console.error('Error fetching course instances:', error);
+  //   }
+  // };
+
+  useEffect(() => {
+    fetchCourses();
+    // fetchCourseInstances();
+  }, []);
+
+  useEffect(() => {
+    console.log('Courses:', courses); // Add this line
+  }, [courses]);
 
 
   //for adding/enrolling into courses
-  const handleEnroll = async (courseInstanceID) => {
+  const handleEnroll = async (CourseID) => {
+    console.log('Student ID:', studentID);
+    console.log('CourseID:', CourseID);
+
     try {
       const response = await fetch('http://localhost:3000/enroll', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ studentID: studentID, courseInstanceID: courseInstanceID}),
+        body: JSON.stringify({ studentID: studentID, courseID: CourseID}),
         });
       if (response.ok) {
         // Enrollment successful
@@ -77,14 +121,13 @@ const StudentPage = () => {
     }
   };
 
-  useEffect(() => {
-    fetchCourses();
-  }, []);
 
+  //for the search bar
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
   };
 
+  //filtering courses based on ^^^^
   const filteredCourses = courses.filter(course =>
     course.CourseName.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -128,7 +171,7 @@ const StudentPage = () => {
               <td>{course.credits}</td>
               <td>{course.Description}</td>
               <td>
-                <Button onClick={() => handleEnroll(studentID, course.CourseInstanceID)}>Enroll</Button>
+                <Button onClick={() => handleEnroll(course.CourseID)}>Enroll</Button>
               </td>
             </tr>
           ))}

@@ -320,18 +320,18 @@ app.get('/api/studentID', async (req, res) => {
 app.post('/enroll', async (req, res) => {
   try {
 
-    const { studentID, courseInstanceID } = req.body;
+    const { studentID, courseID } = req.body;
 
     //just gets irl date for when the enroll button is clicked LOLs 
     const enrollmentDate = new Date().toISOString().slice(0, 10); 
 
     //i check
     console.log('Student ID:', studentID);
-    console.log('Course Instance ID:', courseInstanceID);
+    console.log('Course ID:', courseID);
     console.log('Enrollment Date:', enrollmentDate);
 
     const query = 'INSERT INTO enrollments (StudentID, CourseInstanceID, EnrollmentDate) VALUES (?, ?, ?)';
-    const [result] = await connection.promise().execute(query, [studentID, courseInstanceID, enrollmentDate]);
+    const [result] = await connection.promise().execute(query, [studentID, courseID, enrollmentDate]);
 
     res.status(201).json({ message: 'Enrollment successful', result });
   } catch (error) {
