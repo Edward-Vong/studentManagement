@@ -322,6 +322,15 @@ app.post('/enroll', async (req, res) => {
 
     const { studentID, courseID } = req.body;
 
+    // Check if the student is already enrolled in the course
+    const existingEnrollmentQuery = 'SELECT * FROM enrollments WHERE StudentID = ? AND CourseInstanceID = ?';
+    const [existingEnrollmentRows] = await connection.promise().execute(existingEnrollmentQuery, [studentID, courseID]);
+
+    if (existingEnrollmentRows.length > 0) {
+      // Student is already enrolled in the course
+      return res.status(400).json({ error: 'Student is already enrolled in this course' });
+    }
+
     //just gets irl date for when the enroll button is clicked LOLs 
     const enrollmentDate = new Date().toISOString().slice(0, 10); 
 
@@ -339,5 +348,23 @@ app.post('/enroll', async (req, res) => {
     res.status(500).json({ error: 'Failed to enroll in course', error });
   }
 });
+
+
+app.get('/enrollments', (req, res) => {
+  try {
+    connection.query('SELECT * FROM enrollments', (error, results) => {
+      if (error) {
+        console.error('Error executing MySQL query: ' + error.stack);
+        return res.status(500).json({ error: 'Internal Server Error' });
+      }
+      res.json(results);
+    });
+  } catch (error) {
+    console.error('Error occurred during database query: ' + error.stack);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
 
 

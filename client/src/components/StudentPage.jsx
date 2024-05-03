@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Table, Form, Pagination, Button } from 'react-bootstrap';
+import { Container, Row, Col, Table, Form, Pagination, Button, Modal } from 'react-bootstrap';
 import NavBar from './Navbar';
 
 const StudentPage = () => {
@@ -13,18 +13,25 @@ const StudentPage = () => {
   //for search bar
   const [searchTerm, setSearchTerm] = useState('');
 
-  //for pagination
+  //for pagination and moving between course pages
   const [coursesPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
 
+  //for getting enrollments
+  const [enrollments, setEnrollments] = useState([]);
+
+  //for showing error modal/popup when 
+  //students that try to re-enroll again
+  const [showEnrollmentError, setShowEnrollmentError] = useState(false); 
 
 
-    // Fetch studentID when component mounts
+    // Fetch studentID when the component mounts
     const fetchStudentID = async () => {
       try {
         const response = await fetch('http://localhost:3000/api/studentID', {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}` // Pass the JWT token from localStorage
+            //passing pw token from local storage
+            Authorization: `Bearer ${localStorage.getItem('token')}` 
           }
         });
         if (response.ok) {
@@ -92,15 +99,43 @@ const StudentPage = () => {
     // fetchCourseInstances();
   }, []);
 
+  const fetchEnrollments = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/enrollments', {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        //console.log('Enrollments data:', data); 
+        //gets enrollments only for the current student user that's signed in
+        const userEnrollments = data.filter(enrollment => enrollment.StudentID === studentID);
+        setEnrollments(userEnrollments); 
+      } else {
+        throw new Error('Failed to fetch enrollments');
+      }
+    } catch (error) {
+      console.error('Error fetching enrollments:', error);
+      //if error bc am tired of the screen going white
+      return []; 
+    }
+  };
+  
+  
   useEffect(() => {
-    console.log('Courses:', courses); // Add this line
-  }, [courses]);
+    fetchEnrollments();
+  }, [studentID]);
+
+  console.log('Enrollments:', enrollments);
+
+  
 
 
   //for adding/enrolling into courses
   const handleEnroll = async (CourseID) => {
-    console.log('Student ID:', studentID);
-    console.log('CourseID:', CourseID);
+    // console.log('Student ID:', studentID);
+    // console.log('CourseID:', CourseID);
 
     try {
       const response = await fetch('http://localhost:3000/enroll', {
@@ -113,12 +148,27 @@ const StudentPage = () => {
       if (response.ok) {
         // Enrollment successful
         console.log('Enrollment successful');
+        //calls the fetch so that no need to refresh
+        fetchEnrollments();
+
       } else {
         console.error('Enrollment failed:', response.statusText);
+        //show popup error
+        //400 error bad req
+        if (response.status === 400) {
+          setShowEnrollmentError(true);
+        }
+        
       }
     } catch (error) {
       console.error('Error enrolling in course:', error);
     }
+  };
+
+
+  //for closing the enrollment popup error
+  const handleCloseEnrollmentError = () => {
+    setShowEnrollmentError(false); 
   };
 
 
@@ -128,21 +178,27 @@ const StudentPage = () => {
   };
 
   //filtering courses based on ^^^^
+  //only uses name atm but i want to change it so that 
+  //we can only search based on course number
   const filteredCourses = courses.filter(course =>
     course.CourseName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // for moving between page of courses 
   // there's 10 courses per page
+  //for the last course (get index)
   const indexOfLastCourse = currentPage * coursesPerPage;
+  //for first course (get index)
   const indexOfFirstCourse = indexOfLastCourse - coursesPerPage;
+  //for getting the current 10 courses of a certain page
   const currentCourses = filteredCourses.slice(indexOfFirstCourse, indexOfLastCourse);
+  //for moving in between each course page 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <Container>
       <NavBar />
-      <h1>FreakNite University: Spring 2024</h1>
+      <h1>FreakNite University: Spring 2024 😜</h1>
       <Row className="my-4">
         <Col>
           <Form.Control
@@ -188,6 +244,49 @@ const StudentPage = () => {
           </Pagination>
         </Col>
       </Row>
+          
+      <h1>Your Current Enrollments</h1>
+      <h2>For FreakNite University 😜</h2>
+      <h2>🤫🤫🤫🤫🤫🤫🤫🤫🤫🤫</h2>
+      <Table striped bordered>
+        <thead>
+          <tr>
+            <th>Course Number</th>
+            <th>Course Title</th>
+            <th>Enrollment Date</th>
+            <th>Action </th>
+          </tr>
+        </thead>
+        <tbody>
+          {enrollments.map((enrollment) => (
+
+            <tr key={enrollment.EnrollmentID}>
+              <td>{enrollment.CourseInstanceID}</td>
+              <td></td>
+              <td>{new Date(enrollment.EnrollmentDate).toLocaleDateString()}</td>
+              <td>
+                <Button>Drop</Button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+      
+      <Modal show={showEnrollmentError} onHide={handleCloseEnrollmentError}>
+
+        <Modal.Header closeButton>
+          <Modal.Title>Enrollment Error</Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body>
+          You have already enrolled for this course. 😜
+        </Modal.Body>
+
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseEnrollmentError}> Close </Button>
+        </Modal.Footer>
+
+      </Modal>
     </Container>
   );
 };
