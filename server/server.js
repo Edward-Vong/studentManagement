@@ -277,59 +277,94 @@ app.get('/courses', async (req, res) => {
   }
 });
 
-//still not done
+
+//WORKS YIPPEEE
 //getting course instances
 app.get('/courseinstances', async (req, res) => {
-
   try {
     const query = 'SELECT * FROM courseinstances';
-
     const [course_inst] = await connection.promise().execute(query);
-
-    res.status(200).json({ course_inst });
+    res.status(200).json({ courseInstances: course_inst }); 
   } catch (error) {
     res.status(500).json({ error: 'Error fetching course instances', error });
   }
 });
 
 
+// Get studentID of currently logged-in user
+app.get('/api/studentID', async (req, res) => {
+  try {
+      // Extract userID from JWT payload
+      const token = req.headers.authorization.split(' ')[1];
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const userID = decoded.id;
 
-//for enrollment functionality: 
+      // Query database to get studentID
+      const query = 'SELECT UserID FROM users WHERE UserID = ? AND Role = "Student"';
+      const [result] = await connection.promise().execute(query, [userID]);
+
+      if (result.length > 0) {
+          const studentID = result[0].UserID;
+          res.status(200).json({ studentID });
+      } else {
+          res.status(404).json({ message: 'StudentID not found for user' });
+      }
+  } catch (error) {
+      console.error('Error fetching studentID:', error);
+      res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+//For course enroll (student view)
 app.post('/enroll', async (req, res) => {
   try {
-    const { studentID, courseInstanceID } = req.body;
-    
-    // Check if the provided studentID and courseInstanceID are valid
-    const studentQuery = 'SELECT * FROM users WHERE UserID = ? AND Role = "Student"';
-    const [students] = await connection.promise().execute(studentQuery, [studentID]);
-    
-    const courseInstanceQuery = 'SELECT * FROM courseinstances WHERE CourseInstanceID = ?';
-    const [courseInstances] = await connection.promise().execute(courseInstanceQuery, [courseInstanceID]);
 
-    if (students.length === 0) {
-      return res.status(404).json({ error: 'Student not found or not valid' });
-    }
-    
-    if (courseInstances.length === 0) {
-      return res.status(404).json({ error: 'Course instance not found or not valid' });
-    }
+    const { studentID, courseID } = req.body;
 
     // Check if the student is already enrolled in the course
-    const enrollmentQuery = 'SELECT * FROM enrollments WHERE StudentID = ? AND CourseInstanceID = ?';
-    const [enrollments] = await connection.promise().execute(enrollmentQuery, [studentID, courseInstanceID]);
+    const existingEnrollmentQuery = 'SELECT * FROM enrollments WHERE StudentID = ? AND CourseInstanceID = ?';
+    const [existingEnrollmentRows] = await connection.promise().execute(existingEnrollmentQuery, [studentID, courseID]);
 
-    if (enrollments.length > 0) {
+    if (existingEnrollmentRows.length > 0) {
+      // Student is already enrolled in the course
       return res.status(400).json({ error: 'Student is already enrolled in this course' });
     }
 
-    // Insert the enrollment record
-    const insertQuery = 'INSERT INTO enrollments (StudentID, CourseInstanceID, EnrollmentDate) VALUES (?, ?, ?)';
-    const currentDate = new Date().toISOString().split('T')[0]; // Get current date
-    await connection.promise().execute(insertQuery, [studentID, courseInstanceID, currentDate]);
+    //just gets irl date for when the enroll button is clicked LOLs 
+    const enrollmentDate = new Date().toISOString().slice(0, 10); 
 
-    res.status(201).json({ message: 'Enrollment successful' });
+    //i check
+    console.log('Student ID:', studentID);
+    console.log('Course ID:', courseID);
+    console.log('Enrollment Date:', enrollmentDate);
+
+    const query = 'INSERT INTO enrollments (StudentID, CourseInstanceID, EnrollmentDate) VALUES (?, ?, ?)';
+    const [result] = await connection.promise().execute(query, [studentID, courseID, enrollmentDate]);
+
+    res.status(201).json({ message: 'Enrollment successful', result });
   } catch (error) {
-    console.error('Error enrolling student in course:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Error enrolling in course:', error);
+    res.status(500).json({ error: 'Failed to enroll in course', error });
   }
 });
+
+
+app.get('/enrollments', (req, res) => {
+  try {
+    connection.query('SELECT * FROM enrollments', (error, results) => {
+      if (error) {
+        console.error('Error executing MySQL query: ' + error.stack);
+        return res.status(500).json({ error: 'Internal Server Error' });
+      }
+      res.json(results);
+    });
+  } catch (error) {
+    console.error('Error occurred during database query: ' + error.stack);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
+
+
