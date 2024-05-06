@@ -365,6 +365,70 @@ app.get('/enrollments', (req, res) => {
   }
 });
 
+app.get('/instructor-courses/:instructorId', async (req, res) => {
+  const instructorId = req.params.instructorId;
+
+  // Ensure that instructorId is valid (e.g., not null, is a number)
+  if (!instructorId || isNaN(instructorId)) {
+      return res.status(400).json({ message: 'Invalid instructor ID provided' });
+  }
+
+  try {
+      // Adjusted query to check the correct linkage and fields
+      const query = `
+          SELECT c.CourseName, c.CourseID, ci.StartTime, ci.EndTime, ci.DaysOfWeek, ci.RoomID
+          FROM courseinstances ci
+          JOIN courses c ON ci.CourseID = c.CourseID
+          WHERE ci.InstructorID = ?
+      `;
+      
+      // Execute the query with parameter safety
+      const [courses] = await connection.promise().execute(query, [instructorId]);
+
+      if (courses.length > 0) {
+          res.status(200).json({ courses });
+      } else {
+          res.status(404).json({ message: 'No courses found for this instructor' });
+      }
+  } catch (error) {
+      console.error('Error fetching courses for instructor:', error);
+      res.status(500).json({ error: 'Internal server error', message: error.message });
+  }
+});
 
 
+app.get('/students/:id', async (req, res) => {
+  const { id } = req.params;
 
+  try {
+      const query = 'SELECT * FROM users WHERE UserID = ? AND Role = "Student"';
+      const [students] = await connection.promise().execute(query, [id]);
+
+      if (students.length > 0) {
+          res.status(200).json(students[0]);
+      } else {
+          res.status(404).json({ message: 'Student not found' });
+      }
+  } catch (error) {
+      console.error('Error fetching student:', error);
+      res.status(500).json({ message: 'Internal server error', error });
+  }
+});
+
+app.delete('/enrollments/:enrollmentId', async (req, res) => {
+  const { enrollmentId } = req.params;
+
+  try {
+      const query = 'DELETE FROM enrollments WHERE EnrollmentID = ?';
+      const [result] = await connection.promise().execute(query, [enrollmentId]);
+
+      if (result.affectedRows === 1) {
+          res.status(200).json({ message: 'Enrollment deleted successfully' });
+      } else {
+          res.status(404).json({ message: 'Enrollment not found' });
+      }
+  } catch (error) {
+      console.error('Error deleting enrollment:', error);
+      res.status(500).json({ message: 'Internal server error', error });
+  }
+});
