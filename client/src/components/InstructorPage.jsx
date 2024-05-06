@@ -45,7 +45,7 @@ const InstructorPage = () => {
                         const response = await fetch(`http://localhost:3000/students/${enrollment.StudentID}`);
                         if (response.ok) {
                             const student = await response.json();
-                            student.EnrollmentID = enrollment.EnrollmentID;  // Assume you have access to EnrollmentID here
+                            student.EnrollmentID = enrollment.EnrollmentID;
                             return student;
                         } else {
                             throw new Error('Failed to fetch student details');
