@@ -294,12 +294,11 @@ app.get('/courseinstances', async (req, res) => {
 // Get studentID of currently logged-in user
 app.get('/api/studentID', async (req, res) => {
   try {
-      // Extract userID from JWT payload
+      // Getting userID from the JWT payload
       const token = req.headers.authorization.split(' ')[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       const userID = decoded.id;
 
-      // Query database to get studentID
       const query = 'SELECT UserID FROM users WHERE UserID = ? AND Role = "Student"';
       const [result] = await connection.promise().execute(query, [userID]);
 
@@ -349,7 +348,8 @@ app.post('/enroll', async (req, res) => {
   }
 });
 
-
+//gets the enrollments for the specific user 
+//most likely students + instructor???
 app.get('/enrollments', (req, res) => {
   try {
     connection.query('SELECT * FROM enrollments', (error, results) => {
@@ -396,7 +396,7 @@ app.get('/instructor-courses/:instructorId', async (req, res) => {
   }
 });
 
-
+//for getting student IDs in the Student page
 app.get('/students/:id', async (req, res) => {
   const { id } = req.params;
 
@@ -415,6 +415,8 @@ app.get('/students/:id', async (req, res) => {
   }
 });
 
+//for deleting enrollments in the student page 
+//hopefully it works? question mark question mark
 app.delete('/enrollments/:enrollmentId', async (req, res) => {
   const { enrollmentId } = req.params;
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import NavBar from './Navbar';
 
 const InstructorPage = () => {
     const [courses, setCourses] = useState([]);
@@ -81,6 +82,7 @@ const InstructorPage = () => {
 
     return (
         <div className="container mt-5">
+            <NavBar />
             <h1 className="mb-3">Instructor Dashboard</h1>
             <div className="row">
                 <div className="col-md-6">

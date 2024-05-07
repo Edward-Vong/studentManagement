@@ -13,7 +13,9 @@ const SignUpPage = () => {
     //for nagivating to login page
     const navigate = useNavigate();
 
-
+        const handleLoginClick = () => {
+        navigate('/login');
+    };
 
     // Signup handler
     const handleSignUp = async (e) => {
@@ -127,6 +129,11 @@ const SignUpPage = () => {
                 </form>
 
             </div>
+            
+            <h4>Already have an account?</h4>
+            <button className="login-button" onClick={handleLoginClick}>
+                    Login
+                </button>
 
         </div>
     );

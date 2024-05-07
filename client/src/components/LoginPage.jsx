@@ -7,6 +7,12 @@ const LoginPage = () => {
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
 
+    const handleSignUpClick = () => {
+        navigate('/signup');
+    };
+
+    
+
     const handleLogin = async (e) => {
         e.preventDefault();
 
@@ -84,7 +90,13 @@ const LoginPage = () => {
 
                 </form>
 
+                <h4>Need to create an account?</h4>
+                <button className="signup-button" onClick={handleSignUpClick}>
+                    Sign Up
+                </button>
+
             </div>
+            
 
         </div>
     );

@@ -172,6 +172,33 @@ const StudentPage = () => {
   };
 
 
+  //for dropping said courses that you've enrolled into 
+  const handleDrop = async (enrollmentID) => {
+    try {
+      const response = await fetch(`http://localhost:3000/enrollments/${enrollmentID}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      if (response.ok) {
+        // Enrollment deletion successful
+        console.log('Enrollment deleted successfully');
+        // Update the UI by refetching enrollments
+        fetchEnrollments();
+      } else {
+        // Handle error if enrollment deletion failed
+        console.error('Failed to delete enrollment:', response.statusText);
+        // Display error message or handle it as per your UI requirements
+      }
+    } catch (error) {
+      // Handle any network errors
+      console.error('Error deleting enrollment:', error);
+      // Display error message or handle it as per your UI requirements
+    }
+  };
+
+
   //for the search bar
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
@@ -265,7 +292,7 @@ const StudentPage = () => {
               <td></td>
               <td>{new Date(enrollment.EnrollmentDate).toLocaleDateString()}</td>
               <td>
-                <Button>Drop</Button>
+                <Button onClick={() => handleDrop(enrollment.EnrollmentID)}>Drop</Button>
               </td>
             </tr>
           ))}
