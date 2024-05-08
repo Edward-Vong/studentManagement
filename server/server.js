@@ -434,3 +434,56 @@ app.delete('/enrollments/:enrollmentId', async (req, res) => {
       res.status(500).json({ message: 'Internal server error', error });
   }
 });
+
+
+//adding course
+app.post('/courses', async (req, res) => {
+  try {
+    const { CourseName, DepartmentID, CourseCapacity, credits, Description } = req.body;
+        
+    const query = 'INSERT INTO courses (CourseName, DepartmentID, CourseCapacity, credits, Description) VALUES (?, ?, ?, ?, ?)';
+    const values = [CourseName, DepartmentID, CourseCapacity, credits, Description];
+    
+    await connection.promise().execute(query, values);
+    
+    res.status(201).json({ message: 'Course added successfully' });
+  } catch (error) {
+    console.error('Error adding course:', error);
+    res.status(500).json({ message: 'Internal server error', error });
+  }
+});
+
+// Update a course
+app.put('/courses/:id', async (req, res) => {
+  const courseId = req.params.id;
+  const { CourseName, DepartmentID, CourseCapacity, credits, Description } = req.body;
+  try {
+    const query = 'UPDATE courses SET CourseName = ?, DepartmentID = ?, CourseCapacity = ?, credits = ?, Description = ? WHERE CourseID = ?';
+    const [result] = await connection.promise().execute(query, [CourseName, DepartmentID, CourseCapacity, credits, Description, courseId]);
+    if (result.affectedRows === 0) {
+      res.status(404).json({ message: 'Course not found' });
+    } else {
+      res.status(200).json({ message: 'Course updated successfully' });
+    }
+  } catch (error) {
+    console.error('Error updating course:', error);
+    res.status(500).json({ message: 'Internal server error', error });
+  }
+});
+
+// Delete a course
+app.delete('/courses/:id', async (req, res) => {
+  const courseId = req.params.id;
+  try {
+    const query = 'DELETE FROM courses WHERE CourseID = ?';
+    const [result] = await connection.promise().execute(query, [courseId]);
+    if (result.affectedRows === 0) {
+      res.status(404).json({ message: 'Course not found' });
+    } else {
+      res.status(200).json({ message: 'Course deleted successfully' });
+    }
+  } catch (error) {
+    console.error('Error deleting course:', error);
+    res.status(500).json({ message: 'Internal server error', error });
+  }
+});

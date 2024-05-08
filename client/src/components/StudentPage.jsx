@@ -127,7 +127,7 @@ const StudentPage = () => {
     fetchEnrollments();
   }, [studentID]);
 
-  console.log('Enrollments:', enrollments);
+  //console.log('Enrollments:', enrollments);
 
   
 
