@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import '../styles/LoginPage.css';
 
 const LoginPage = () => {
     //main two that's needed for login
@@ -11,7 +12,7 @@ const LoginPage = () => {
         navigate('/signup');
     };
 
-    
+
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -57,7 +58,6 @@ const LoginPage = () => {
     };
     return (
         <div className="logInMain">
-
             <div className="logIn">
 
                 <h2>Login</h2>
@@ -86,7 +86,7 @@ const LoginPage = () => {
                     />
                 </div>
 
-                <button type="submit">Login</button>
+                <button className="login-button" type="submit">Login</button>
 
                 </form>
 
@@ -96,7 +96,7 @@ const LoginPage = () => {
                 </button>
 
             </div>
-            
+
 
         </div>
     );

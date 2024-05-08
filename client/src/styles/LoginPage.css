@@ -1,0 +1,40 @@
+.logInMain {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f8f9fa;
+}
+
+.logIn {
+    width: 500px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+}
+
+.logIn h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.logIn form {
+    display: grid;
+    grid-gap: 10px;
+}
+
+.logIn form label {
+    font-weight: bold;
+}
+
+.logIn form input {
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+.logIn button {
+    max-width: 240px;
+    margin: 0 auto;
+}
