@@ -38,13 +38,16 @@ const InstructorPage = () => {
         setSelectedCourseDetails(selectedCourse);
     
         try {
-            // Fetch enrollments specifically for the clicked course
-            const enrollmentResponse = await fetch(`http://localhost:3000/enrollments?courseId=${courseId}`);
-            const enrollments = await enrollmentResponse.json();
+            // Assume you fetch all enrollments due to API limitations
+            const enrollmentResponse = await fetch(`http://localhost:3000/enrollments`);
+            const allEnrollments = await enrollmentResponse.json();
             if (enrollmentResponse.ok) {
-                // Fetch student details for each enrollment
+                // Filter enrollments to include only those that belong to the selected course
+                const filteredEnrollments = allEnrollments.filter(enrollment => enrollment.CourseInstanceID === courseId);
+    
+                // Fetch student details for each filtered enrollment
                 const studentDetails = await Promise.all(
-                    enrollments.map(async enrollment => {
+                    filteredEnrollments.map(async enrollment => {
                         const response = await fetch(`http://localhost:3000/students/${enrollment.StudentID}`);
                         if (response.ok) {
                             const student = await response.json();
@@ -58,12 +61,13 @@ const InstructorPage = () => {
                 // Update the student state with only those from the current course
                 setStudents(studentDetails.filter(student => student));
             } else {
-                throw new Error('Failed to fetch enrollments: ' + enrollments.message);
+                throw new Error('Failed to fetch enrollments: ' + allEnrollments.message);
             }
         } catch (error) {
             console.error('Error handling course click:', error.message);
         }
     };
+    
     
 
     const handleUnenroll = async (enrollmentId) => {

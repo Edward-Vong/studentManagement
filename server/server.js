@@ -544,21 +544,3 @@ app.get('/coursesWithInstances', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-
-
-//for instructor page
-app.get('/enrollmentss', async (req, res) => {
-  const { courseId } = req.query; 
-  try {
-      const query = 'SELECT * FROM enrollments WHERE CourseInstanceID = ?';
-      const [results] = await connection.promise().execute(query, [courseId]);
-      if (results.length > 0) {
-          res.json(results);
-      } else {
-          res.status(404).json({ message: 'No enrollments found for this course' });
-      }
-  } catch (error) {
-      console.error('Error fetching enrollments:', error);
-      res.status(500).json({ error: 'Internal Server Error', error });
-  }
-});
