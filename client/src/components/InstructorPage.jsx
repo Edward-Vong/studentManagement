@@ -35,23 +35,26 @@ const InstructorPage = () => {
         setSelectedCourseName(courseName);
         const selectedCourse = courses.find(course => course.CourseID === courseId);
         setSelectedCourseDetails(selectedCourse);
-
+    
         try {
+            // Fetch enrollments specifically for the clicked course
             const enrollmentResponse = await fetch(`http://localhost:3000/enrollments?courseId=${courseId}`);
             const enrollments = await enrollmentResponse.json();
             if (enrollmentResponse.ok) {
+                // Fetch student details for each enrollment
                 const studentDetails = await Promise.all(
                     enrollments.map(async enrollment => {
                         const response = await fetch(`http://localhost:3000/students/${enrollment.StudentID}`);
                         if (response.ok) {
                             const student = await response.json();
-                            student.EnrollmentID = enrollment.EnrollmentID;
+                            student.EnrollmentID = enrollment.EnrollmentID;  // Store EnrollmentID to handle unenrollment
                             return student;
                         } else {
                             throw new Error('Failed to fetch student details');
                         }
                     })
                 );
+                // Update the student state with only those from the current course
                 setStudents(studentDetails.filter(student => student));
             } else {
                 throw new Error('Failed to fetch enrollments: ' + enrollments.message);
@@ -60,6 +63,7 @@ const InstructorPage = () => {
             console.error('Error handling course click:', error.message);
         }
     };
+    
 
     const handleUnenroll = async (enrollmentId) => {
         try {

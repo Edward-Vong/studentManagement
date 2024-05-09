@@ -350,20 +350,22 @@ app.post('/enroll', async (req, res) => {
 });
 
 
-app.get('/enrollments', (req, res) => {
+app.get('/enrollments', async (req, res) => {
+  const { courseId } = req.query; 
   try {
-    connection.query('SELECT * FROM enrollments', (error, results) => {
-      if (error) {
-        console.error('Error executing MySQL query: ' + error.stack);
-        return res.status(500).json({ error: 'Internal Server Error' });
+      const query = 'SELECT * FROM enrollments WHERE CourseInstanceID = ?';
+      const [results] = await connection.promise().execute(query, [courseId]);
+      if (results.length > 0) {
+          res.json(results);
+      } else {
+          res.status(404).json({ message: 'No enrollments found for this course' });
       }
-      res.json(results);
-    });
   } catch (error) {
-    console.error('Error occurred during database query: ' + error.stack);
-    res.status(500).json({ error: 'Internal Server Error' });
+      console.error('Error fetching enrollments:', error);
+      res.status(500).json({ error: 'Internal Server Error', error });
   }
 });
+
 
 app.get('/instructor-courses/:instructorId', async (req, res) => {
   const instructorId = req.params.instructorId;
@@ -432,3 +434,4 @@ app.delete('/enrollments/:enrollmentId', async (req, res) => {
       res.status(500).json({ message: 'Internal server error', error });
   }
 });
+
