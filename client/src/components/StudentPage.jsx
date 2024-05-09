@@ -5,6 +5,7 @@ import NavBar from './Navbar';
 const StudentPage = () => {
   const [courses, setCourses] = useState([]);
   //const [courseInstances, setCourseInstances] = useState([]);
+  const [coursesWithInstances, setCoursesWithInstances] = useState([]);
 
   //for the IDs needed to pass into enrollments
   const [studentID, setStudentID] = useState('');
@@ -83,7 +84,22 @@ const StudentPage = () => {
       console.error('Error fetching course information:', error);
     }
   };
-  
+
+  // Fetch courses along with course instances
+const fetchCoursesWithInstances = async () => {
+  try {
+    const response = await fetch('http://localhost:3000/coursesWithInstances');
+    if (response.ok) {
+      const data = await response.json();
+      setCoursesWithInstances(data);
+    } else {
+      throw new Error('Failed to fetch courses with instances');
+    }
+  } catch (error) {
+    console.error('Error fetching courses with instances:', error);
+  }
+};
+
   // const fetchCourseInstances = async () => {
   //   try {
   //     const courseInstRes = await fetch('http://localhost:3000/courseinstances');
@@ -96,6 +112,7 @@ const StudentPage = () => {
 
   useEffect(() => {
     fetchCourses();
+    fetchCoursesWithInstances();
     // fetchCourseInstances();
   }, []);
 
@@ -242,6 +259,10 @@ const StudentPage = () => {
             <th>Course Number</th>
             <th>Course Title</th>
             <th>Units</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Days of the Week</th>
+            <th>Room Number</th>
             <th>Description</th>
             <th>Action</th>
           </tr>
@@ -252,6 +273,10 @@ const StudentPage = () => {
               <td>{course.CourseID}</td>
               <td>{course.CourseName}</td>
               <td>{course.credits}</td>
+              <td>{}</td>
+              <td>{}</td>
+              <td>{}</td>
+              <td>{}</td>
               <td>{course.Description}</td>
               <td>
                 <Button onClick={() => handleEnroll(course.CourseID)}>Enroll</Button>
@@ -280,6 +305,8 @@ const StudentPage = () => {
           <tr>
             <th>Course Number</th>
             <th>Course Title</th>
+            <th>Units</th>
+            <th>Description</th>
             <th>Enrollment Date</th>
             <th>Action </th>
           </tr>
@@ -289,6 +316,8 @@ const StudentPage = () => {
 
             <tr key={enrollment.EnrollmentID}>
               <td>{enrollment.CourseInstanceID}</td>
+              <td></td>
+              <td></td>
               <td></td>
               <td>{new Date(enrollment.EnrollmentDate).toLocaleDateString()}</td>
               <td>

@@ -163,8 +163,14 @@ const [newCourse, setNewCourse] = useState({
     DepartmentID: '',
     CourseCapacity: '',
     credits: '',
-    Description: ''
+    Description: '',
+    StartTime: '',
+    EndTime: '',
+    DaysOfWeek: '',
+    RoomID: '',
+    InstructorID: ''
 });
+
 
 // Function to handle input change
 const handleInputChange = (e) => {
@@ -194,17 +200,25 @@ const handleAddCourse = async () => {
                 DepartmentID: '',
                 CourseCapacity: '',
                 credits: '',
-                Description: ''
+                Description: '',
+                StartTime: '',
+                EndTime: '',
+                DaysOfWeek: '',
+                RoomID: '',
+                InstructorID: ''
             });
             // Close modal
             setShowAddCourseModal(false);
         } else {
             throw new Error('Failed to add new course');
         }
+        console.log('After updating:', newCourse); 
     } catch (error) {
         console.error('Error:', error);
     }
 };
+
+
 
     return (
         <>
@@ -232,26 +246,48 @@ const handleAddCourse = async () => {
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
-                        <Form.Group controlId='formBasicCourseName'>
-                            <Form.Label>Course Name</Form.Label>
-                            <Form.Control type="text" name="CourseName" value={newCourse.CourseName} onChange={handleInputChange} placeholder="Course Name" />
-                        </Form.Group>
-                        <Form.Group controlId='formBasicDepartmentID'>
-                            <Form.Label>Department ID</Form.Label>
-                            <Form.Control type="text" name="DepartmentID" value={newCourse.DepartmentID} onChange={handleInputChange} placeholder="Department ID" />
-                        </Form.Group>
-                        <Form.Group controlId='formBasicCourseCapacity'>
-                            <Form.Label>Course Capacity</Form.Label>
-                            <Form.Control type="text" name="CourseCapacity" value={newCourse.CourseCapacity} onChange={handleInputChange} placeholder="Course Capacity" />
-                        </Form.Group>
-                        <Form.Group controlId='formBasicCredits'>
-                            <Form.Label>Credits</Form.Label>
-                            <Form.Control type="text" name="credits" value={newCourse.credits} onChange={handleInputChange} placeholder="Credits" />
-                        </Form.Group>
-                        <Form.Group controlId='formBasicDescription'>
-                            <Form.Label>Description</Form.Label>
-                            <Form.Control as="textarea" rows={3} name="Description" value={newCourse.Description} onChange={handleInputChange} placeholder="Description" />
-                        </Form.Group>
+
+                    <Form.Group controlId='formBasicCourseName'>
+                        <Form.Label>Course Name</Form.Label>
+                        <Form.Control type="text" name="CourseName" value={newCourse.CourseName} onChange={handleInputChange} placeholder="Course Name" />
+                    </Form.Group>
+                    <Form.Group controlId='formBasicDepartmentID'>
+                        <Form.Label>Department ID</Form.Label>
+                        <Form.Control type="text" name="DepartmentID" value={newCourse.DepartmentID} onChange={handleInputChange} placeholder="Department ID" />
+                    </Form.Group>
+                    <Form.Group controlId='formBasicCourseCapacity'>
+                        <Form.Label>Course Capacity</Form.Label>
+                        <Form.Control type="text" name="CourseCapacity" value={newCourse.CourseCapacity} onChange={handleInputChange} placeholder="Course Capacity" />
+                    </Form.Group>
+                    <Form.Group controlId='formBasicCredits'>
+                        <Form.Label>Credits</Form.Label>
+                        <Form.Control type="text" name="credits" value={newCourse.credits} onChange={handleInputChange} placeholder="Credits" />
+                    </Form.Group>
+                    <Form.Group controlId='formBasicDescription'>
+                        <Form.Label>Description</Form.Label>
+                        <Form.Control as="textarea" rows={3} name="Description" value={newCourse.Description} onChange={handleInputChange} placeholder="Description" />
+                    </Form.Group>
+                    <Form.Group controlId='formBasicStartTime'>
+                        <Form.Label>Start Time</Form.Label>
+                        <Form.Control type="text" name="StartTime" value={newCourse.StartTime} onChange={handleInputChange} placeholder="00:00:00" />
+                    </Form.Group>
+                    <Form.Group controlId='formBasicEndTime'>
+                        <Form.Label>End Time</Form.Label>
+                        <Form.Control type="text" name="EndTime" value={newCourse.EndTime} onChange={handleInputChange} placeholder="24:00:00" />
+                    </Form.Group>
+                    <Form.Group controlId='formBasicDaysOfWeek'>
+                        <Form.Label>Days Of The Week</Form.Label>
+                        <Form.Control type="text" name="DaysOfWeek" value={newCourse.DaysOfWeek} onChange={handleInputChange} placeholder="MTWRF" />
+                    </Form.Group>
+                    <Form.Group controlId='formBasicRoomID'>
+                        <Form.Label>Room ID</Form.Label>
+                        <Form.Control type="number" name="RoomID" value={newCourse.RoomID} onChange={handleInputChange} />
+                    </Form.Group>
+                    <Form.Group controlId='formBasicInstructorID'>
+                        <Form.Label>Instructor ID</Form.Label>
+                        <Form.Control type="number" name="InstructorID" value={newCourse.InstructorID} onChange={handleInputChange} />
+                    </Form.Group>
+
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>

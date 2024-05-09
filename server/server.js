@@ -439,17 +439,31 @@ app.delete('/enrollments/:enrollmentId', async (req, res) => {
 //adding course
 app.post('/courses', async (req, res) => {
   try {
-    const { CourseName, DepartmentID, CourseCapacity, credits, Description } = req.body;
-        
-    const query = 'INSERT INTO courses (CourseName, DepartmentID, CourseCapacity, credits, Description) VALUES (?, ?, ?, ?, ?)';
-    const values = [CourseName, DepartmentID, CourseCapacity, credits, Description];
-    
-    await connection.promise().execute(query, values);
-    
-    res.status(201).json({ message: 'Course added successfully' });
+
+      console.log('Request Body:', req.body);
+      const { CourseName, DepartmentID, CourseCapacity, credits, Description, StartTime, EndTime, DaysOfWeek, RoomID, InstructorID } = req.body;
+
+      // Add the course to the courses table
+      const courseQuery = 'INSERT INTO courses (CourseName, DepartmentID, CourseCapacity, credits, Description) VALUES (?, ?, ?, ?, ?)';
+      const courseValues = [CourseName, DepartmentID, CourseCapacity, credits, Description];
+
+      // Execute the course insertion query
+      const [courseInsertionResult] = await connection.promise().execute(courseQuery, courseValues);
+
+      // Retrieve the newly generated CourseID
+      const CourseID = courseInsertionResult.insertId;
+
+      // Add the course instance to the courseinstances table
+      const courseInstanceQuery = 'INSERT INTO courseinstances (CourseID, StartTime, EndTime, DaysOfWeek, RoomID, InstructorID) VALUES (?, ?, ?, ?, ?, ?)';
+      const courseInstanceValues = [CourseID, StartTime, EndTime, DaysOfWeek, RoomID, InstructorID];
+
+      // Execute the course instance insertion query
+      await connection.promise().execute(courseInstanceQuery, courseInstanceValues);
+
+      res.status(201).json({ message: 'Course and CourseInstance added successfully' });
   } catch (error) {
-    console.error('Error adding course:', error);
-    res.status(500).json({ message: 'Internal server error', error });
+      console.error('Error adding course:', error);
+      res.status(500).json({ message: 'Internal server error', error });
   }
 });
 
@@ -485,5 +499,41 @@ app.delete('/courses/:id', async (req, res) => {
   } catch (error) {
     console.error('Error deleting course:', error);
     res.status(500).json({ message: 'Internal server error', error });
+  }
+});
+
+
+// Getting courses with their corresponding courseinstances
+app.get('/coursesWithInstances', async (req, res) => {
+  try {
+    // SQL query to join courses and courseinstances tables
+    const query = `
+      SELECT 
+        c.CourseID,
+        c.CourseName,
+        c.DepartmentID,
+        c.CourseCapacity,
+        c.credits,
+        c.Description,
+        ci.CourseInstanceID,
+        ci.StartTime,
+        ci.EndTime,
+        ci.DaysOfWeek,
+        ci.RoomID,
+        ci.InstructorID
+      FROM courses c
+      INNER JOIN courseinstances ci ON c.CourseID = ci.CourseID
+    `;
+  
+    // Execute the query
+    const [coursesWithInstances] = await connection.promise().execute(query);
+  
+    // Send the response with the joined data
+    res.status(200).json({ coursesWithInstances });
+  
+  } catch (error) {
+    // Handle errors
+    console.error('Error fetching courses with instances:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
