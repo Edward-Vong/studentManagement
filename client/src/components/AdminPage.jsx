@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import UserTable from './UserTable';
 import { Container, Row, Col, Modal, Button, Form } from 'react-bootstrap';
 import NavBar from './Navbar';
+import CourseTable from './CourseTable';
 
 const AdminPage = () => {
     const [students, setStudents] = useState([]);
@@ -9,22 +10,39 @@ const AdminPage = () => {
     const [showEditModal, setShowEditModal] = useState(false);
     const [editableUser, setEditableUser] = useState(null);
 
-const fetchUsers = async () => {
-    try {
-        const studentsRes = await fetch('http://localhost:3000/students');
-        const studentsData = await studentsRes.json();
-        setStudents(studentsData.students);
+    const [showAddCourseModal, setShowAddCourseModal] = useState(false);
+    const [showEditCourseModal, setShowEditCourseModal] = useState(false);
+    const [courses, setCourses] =useState([]);
+    const [editableCourse, setEditableCourse] = useState(null);
 
-        const instructorsRes = await fetch('http://localhost:3000/instructors');
-        const instructorsData = await instructorsRes.json();
-        setInstructors(instructorsData.instructors);
-    } catch (error) {
-        console.error('Error fetching users:', error);
-    }
-};
+
+    const fetchCourses = async () => {
+        try {
+          const courseRes = await fetch('http://localhost:3000/courses');
+          const courseData = await courseRes.json();
+          setCourses(courseData.courses);
+        } catch (error) {
+          console.error('Error fetching course information:', error);
+        }
+      };
+
+    const fetchUsers = async () => {
+        try {
+            const studentsRes = await fetch('http://localhost:3000/students');
+            const studentsData = await studentsRes.json();
+            setStudents(studentsData.students);
+
+            const instructorsRes = await fetch('http://localhost:3000/instructors');
+            const instructorsData = await instructorsRes.json();
+            setInstructors(instructorsData.instructors);
+        } catch (error) {
+            console.error('Error fetching users:', error);
+        }
+    };
 
 useEffect(() => {
     fetchUsers();
+    fetchCourses();
 }, []);
 
 const handleEdit = (user) => {
@@ -84,6 +102,124 @@ const handleSaveChanges = () => {
         });
 }
 
+const handleEditCourse = (course) => {
+    setEditableCourse(course);
+    setShowEditCourseModal(true);
+};
+
+
+const handleDeleteCourse = async (courseId) => {
+    if (window.confirm('Are you sure you want to delete this course?')) {
+        try {
+            const res = await fetch(`http://localhost:3000/courses/${courseId}`, {
+                method: 'DELETE',
+            });
+            if (res.ok) {
+                fetchCourses(); // Refresh courses after deletion
+            } else {
+                throw new Error('Failed to delete this course');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+};
+
+const handleCloseCourseModal = () => {
+    setShowEditCourseModal(false);
+};
+
+const handleSaveCourseChanges = async () => {
+    const updatedCourse = {
+        CourseName: document.getElementById('formBasicCourseName').value,
+        DepartmentID: document.getElementById('formBasicDepartmentID').value,
+        CourseCapacity: document.getElementById('formBasicCourseCapacity').value,
+        credits: document.getElementById('formBasicCredits').value,
+        Description: document.getElementById('formBasicDescription').value,
+    };
+
+    try {
+        const res = await fetch(`http://localhost:3000/courses/${editableCourse.CourseID}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updatedCourse),
+        });
+        if (res.ok) {
+            setShowEditCourseModal(false);
+            fetchCourses();
+        } else {
+            throw new Error('Failed to update course');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+};
+
+
+const [newCourse, setNewCourse] = useState({
+    CourseName: '',
+    DepartmentID: '',
+    CourseCapacity: '',
+    credits: '',
+    Description: '',
+    StartTime: '',
+    EndTime: '',
+    DaysOfWeek: '',
+    RoomID: '',
+    InstructorID: ''
+});
+
+
+// Function to handle input change
+const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewCourse(prevState => ({
+        ...prevState,
+        [name]: value
+    }));
+};
+
+// Function to handle form submission for adding a new course
+const handleAddCourse = async () => {
+    try {
+        const res = await fetch('http://localhost:3000/courses', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(newCourse),
+        });
+        if (res.ok) {
+            // Refresh course list after adding new course
+            fetchCourses();
+            // Reset form fields
+            setNewCourse({
+                CourseName: '',
+                DepartmentID: '',
+                CourseCapacity: '',
+                credits: '',
+                Description: '',
+                StartTime: '',
+                EndTime: '',
+                DaysOfWeek: '',
+                RoomID: '',
+                InstructorID: ''
+            });
+            // Close modal
+            setShowAddCourseModal(false);
+        } else {
+            throw new Error('Failed to add new course');
+        }
+        console.log('After updating:', newCourse); 
+    } catch (error) {
+        console.error('Error:', error);
+    }
+};
+
+
+
     return (
         <>
         <NavBar />
@@ -100,7 +236,107 @@ const handleSaveChanges = () => {
                     <UserTable users={instructors} userType="instructors" handleEdit={handleEdit} handleDelete={handleDelete} />
                 </Col>
             </Row>
-            {/* Edit Modal */}
+
+            <Button variant="primary" onClick={() => setShowAddCourseModal(true)}>Add New Course</Button>
+
+            {/* Modal for adding new course */}
+            <Modal show={showAddCourseModal} onHide={() => setShowAddCourseModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Add New Course</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+
+                    <Form.Group controlId='formBasicCourseName'>
+                        <Form.Label>Course Name</Form.Label>
+                        <Form.Control type="text" name="CourseName" value={newCourse.CourseName} onChange={handleInputChange} placeholder="Course Name" />
+                    </Form.Group>
+                    <Form.Group controlId='formBasicDepartmentID'>
+                        <Form.Label>Department ID</Form.Label>
+                        <Form.Control type="text" name="DepartmentID" value={newCourse.DepartmentID} onChange={handleInputChange} placeholder="Department ID" />
+                    </Form.Group>
+                    <Form.Group controlId='formBasicCourseCapacity'>
+                        <Form.Label>Course Capacity</Form.Label>
+                        <Form.Control type="text" name="CourseCapacity" value={newCourse.CourseCapacity} onChange={handleInputChange} placeholder="Course Capacity" />
+                    </Form.Group>
+                    <Form.Group controlId='formBasicCredits'>
+                        <Form.Label>Credits</Form.Label>
+                        <Form.Control type="text" name="credits" value={newCourse.credits} onChange={handleInputChange} placeholder="Credits" />
+                    </Form.Group>
+                    <Form.Group controlId='formBasicDescription'>
+                        <Form.Label>Description</Form.Label>
+                        <Form.Control as="textarea" rows={3} name="Description" value={newCourse.Description} onChange={handleInputChange} placeholder="Description" />
+                    </Form.Group>
+                    <Form.Group controlId='formBasicStartTime'>
+                        <Form.Label>Start Time</Form.Label>
+                        <Form.Control type="text" name="StartTime" value={newCourse.StartTime} onChange={handleInputChange} placeholder="00:00:00" />
+                    </Form.Group>
+                    <Form.Group controlId='formBasicEndTime'>
+                        <Form.Label>End Time</Form.Label>
+                        <Form.Control type="text" name="EndTime" value={newCourse.EndTime} onChange={handleInputChange} placeholder="24:00:00" />
+                    </Form.Group>
+                    <Form.Group controlId='formBasicDaysOfWeek'>
+                        <Form.Label>Days Of The Week</Form.Label>
+                        <Form.Control type="text" name="DaysOfWeek" value={newCourse.DaysOfWeek} onChange={handleInputChange} placeholder="MTWRF" />
+                    </Form.Group>
+                    <Form.Group controlId='formBasicRoomID'>
+                        <Form.Label>Room ID</Form.Label>
+                        <Form.Control type="number" name="RoomID" value={newCourse.RoomID} onChange={handleInputChange} />
+                    </Form.Group>
+                    <Form.Group controlId='formBasicInstructorID'>
+                        <Form.Label>Instructor ID</Form.Label>
+                        <Form.Control type="number" name="InstructorID" value={newCourse.InstructorID} onChange={handleInputChange} />
+                    </Form.Group>
+
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowAddCourseModal(false)}>Close</Button>
+                    <Button variant="primary" onClick={handleAddCourse}>Add Course</Button>
+                </Modal.Footer>
+            </Modal>
+
+            <Row className="my-4">
+                <Col>
+                    <h2>Courses</h2>
+                    <CourseTable courses={courses} handleEdit={handleEditCourse} handleDelete={handleDeleteCourse} />
+                </Col>
+            </Row>
+            {/* Edit Modal for Courses */}
+            <Modal show={showEditCourseModal} onHide={handleCloseCourseModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Edit Course</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                        <Form>
+                            <Form.Group controlId='formBasicCourseName'>
+                                <Form.Label>Course Name</Form.Label>
+                                <Form.Control type="text" placeholder="Course Name" defaultValue={editableCourse?.CourseName} />
+                            </Form.Group>
+                            <Form.Group controlId='formBasicDepartmentID'>
+                                <Form.Label>Department ID</Form.Label>
+                                <Form.Control type="text" placeholder="Department ID" defaultValue={editableCourse?.DepartmentID} />
+                            </Form.Group>
+                            <Form.Group controlId='formBasicCourseCapacity'>
+                                <Form.Label>Course Capacity</Form.Label>
+                                <Form.Control type="text" placeholder="Course Capacity" defaultValue={editableCourse?.CourseCapacity} />
+                            </Form.Group>
+                            <Form.Group controlId='formBasicCredits'>
+                                <Form.Label>Credits</Form.Label>
+                                <Form.Control type="text" placeholder="Credits" defaultValue={editableCourse?.credits} />
+                            </Form.Group>
+                            <Form.Group controlId='formBasicDescription'>
+                                <Form.Label>Description</Form.Label>
+                                <Form.Control as="textarea" rows={3} placeholder="Description" defaultValue={editableCourse?.Description} />
+                            </Form.Group>
+                        </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleCloseCourseModal}>Close</Button>
+                    <Button variant="primary" onClick={handleSaveCourseChanges}>Save Changes</Button>
+                </Modal.Footer>
+            </Modal>
+            {/* Edit Modal for Users */}
             <Modal show={showEditModal} onHide={handleCloseModal}>
                 <Modal.Header closeButton>
                     <Modal.Title>Edit User</Modal.Title>
@@ -132,129 +368,3 @@ const handleSaveChanges = () => {
 }
 
 export default AdminPage;
-//     const [classes, setClasses] = useState([]);
-//     const [currentPage, setCurrentPage] = useState(1);
-//     const [searchQuery, setSearchQuery] = useState('');
-//     const classesPerPage = 10;
-
-//     useEffect(() => {
-//         // Dummy data generation
-//         const dummyData = Array.from({ length: 100 }, (_, index) => ({
-//         id: index + 1,
-//         name: `Class ${index + 1}`
-//         }));
-//         setClasses(dummyData);
-//     }, []);
-
-//     const indexOfLastClass = currentPage * classesPerPage;
-//     const indexOfFirstClass = indexOfLastClass - classesPerPage;
-//     let filteredClasses = classes.filter((classItem) =>
-//         classItem.name.toLowerCase().includes(searchQuery.toLowerCase())
-//     );
-//     const currentClasses = filteredClasses.slice(indexOfFirstClass, indexOfLastClass);
-
-//     const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
-//     const handleDelete = (id) => {
-//         // Dummy delete function
-//         setClasses(classes.filter((classItem) => classItem.id !== id));
-//     };
-
-//     const handleEdit = (id) => {
-//         // Dummy edit function
-//         console.log(`Editing class with id: ${id}`);
-//     };
-
-//     const handleSearch = (e) => {
-//         setSearchQuery(e.target.value);
-//         setCurrentPage(1); // Reset page thing when search changes
-//     };
-
-//     return (
-//         <div className="container mx-auto mt-8">
-
-//             <h2 className="text-2xl font-bold mb-4">Classes</h2>
-
-//             <div className="mb-4">
-//                 <input
-//                 type="text"
-//                 value={searchQuery}
-//                 onChange={handleSearch}
-//                 placeholder="Search for a class..."
-//                 className="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-//                 />
-//             </div>
-
-//             <ul>
-//                 {currentClasses.map((classItem) => (
-
-//                 <li key={classItem.id} className="py-2 flex items-center justify-between">
-
-//                     <span>{classItem.name}</span>
-
-//                     <div>
-
-//                         <button
-//                             onClick={() => handleEdit(classItem.id)}
-//                             className="px-3 py-1 mr-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-//                             Edit
-//                         </button>
-
-//                         <button
-//                             onClick={() => handleDelete(classItem.id)}
-//                             className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600">
-//                             Delete
-//                         </button>
-
-//                     </div>
-
-//                 </li>
-//                 ))}
-
-//             </ul>
-
-//             <Pagination
-//                 itemsPerPage={classesPerPage}
-//                 totalItems={filteredClasses.length}
-//                 paginate={paginate}
-//                 currentPage={currentPage} />
-
-//         </div>
-//     );
-// };
-
-    // const Pagination = ({ itemsPerPage, totalItems, paginate, currentPage }) => {
-    // const pageNumbers = [];
-
-    // for (let i = 1; i <= Math.ceil(totalItems / itemsPerPage); i++) {
-    //     pageNumbers.push(i);
-    // }
-
-    // return (
-    //     <nav className="mt-4">
-
-    //         <ul className="flex space-x-2">
-
-    //             {pageNumbers.map((number) => (
-
-    //             <li key={number}>
-    //                 <button
-    //                 onClick={() => paginate(number)}
-    //                 className={`px-3 py-1 rounded-md ${
-    //                     currentPage === number ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'
-    //                 } hover:bg-blue-600 hover:text-white`} >
-
-    //                 {number}
-
-    //                 </button>
-
-    //             </li>
-    //             ))}
-
-    //         </ul>
-
-    //     </nav>
-    // );
-// };
-
-// export default AdminPage;

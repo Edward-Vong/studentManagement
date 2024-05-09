@@ -1,11 +1,18 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import '../styles/LoginPage.css';
 
 const LoginPage = () => {
     //main two that's needed for login
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
+
+    const handleSignUpClick = () => {
+        navigate('/signup');
+    };
+
+
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -51,7 +58,6 @@ const LoginPage = () => {
     };
     return (
         <div className="logInMain">
-
             <div className="logIn">
 
                 <h2>Login</h2>
@@ -80,11 +86,17 @@ const LoginPage = () => {
                     />
                 </div>
 
-                <button type="submit">Login</button>
+                <button className="login-button" type="submit">Login</button>
 
                 </form>
 
+                <h4>Need to create an account?</h4>
+                <button className="signup-button" onClick={handleSignUpClick}>
+                    Sign Up
+                </button>
+
             </div>
+
 
         </div>
     );

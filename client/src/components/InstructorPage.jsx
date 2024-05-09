@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import NavBar from './Navbar';
 
 const InstructorPage = () => {
     const [courses, setCourses] = useState([]);
@@ -85,6 +86,7 @@ const InstructorPage = () => {
 
     return (
         <div className="container mt-5">
+            <NavBar />
             <h1 className="mb-3">Instructor Dashboard</h1>
             <div className="row">
                 <div className="col-md-6">
@@ -113,16 +115,30 @@ const InstructorPage = () => {
                     )}
                     <div className="card">
                         <div className="card-header">Students in {selectedCourseName}</div>
-                        <ul className="list-group list-group-flush">
-                            {students.map((student, index) => (
-                                <li className="list-group-item d-flex justify-content-between align-items-center" key={student.UserID || index}>
-                                    <div className="text-center flex-grow-1">{student.FirstName} {student.LastName} - {student.Email}</div>
-                                    <button className="btn btn-danger btn-sm" onClick={() => handleUnenroll(student.EnrollmentID)}>
-                                        Remove
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
+                        <div className="table-responsive">
+                            <table className="table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {students.map((student, index) => (
+                                        <tr key={student.UserID || index}>
+                                            <td>{student.FirstName} {student.LastName}</td>
+                                            <td>{student.Email}</td>
+                                            <td>
+                                                <button className="btn btn-danger btn-sm" onClick={() => handleUnenroll(student.EnrollmentID)}>
+                                                    Remove
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>

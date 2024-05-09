@@ -5,6 +5,7 @@ import NavBar from './Navbar';
 const StudentPage = () => {
   const [courses, setCourses] = useState([]);
   //const [courseInstances, setCourseInstances] = useState([]);
+  const [coursesWithInstances, setCoursesWithInstances] = useState([]);
 
   //for the IDs needed to pass into enrollments
   const [studentID, setStudentID] = useState('');
@@ -83,7 +84,22 @@ const StudentPage = () => {
       console.error('Error fetching course information:', error);
     }
   };
-  
+
+  // Fetch courses along with course instances
+const fetchCoursesWithInstances = async () => {
+  try {
+    const response = await fetch('http://localhost:3000/coursesWithInstances');
+    if (response.ok) {
+      const data = await response.json();
+      setCoursesWithInstances(data);
+    } else {
+      throw new Error('Failed to fetch courses with instances');
+    }
+  } catch (error) {
+    console.error('Error fetching courses with instances:', error);
+  }
+};
+
   // const fetchCourseInstances = async () => {
   //   try {
   //     const courseInstRes = await fetch('http://localhost:3000/courseinstances');
@@ -96,6 +112,7 @@ const StudentPage = () => {
 
   useEffect(() => {
     fetchCourses();
+    fetchCoursesWithInstances();
     // fetchCourseInstances();
   }, []);
 
@@ -127,7 +144,7 @@ const StudentPage = () => {
     fetchEnrollments();
   }, [studentID]);
 
-  console.log('Enrollments:', enrollments);
+  //console.log('Enrollments:', enrollments);
 
   
 
@@ -169,6 +186,33 @@ const StudentPage = () => {
   //for closing the enrollment popup error
   const handleCloseEnrollmentError = () => {
     setShowEnrollmentError(false); 
+  };
+
+
+  //for dropping said courses that you've enrolled into 
+  const handleDrop = async (enrollmentID) => {
+    try {
+      const response = await fetch(`http://localhost:3000/enrollments/${enrollmentID}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      if (response.ok) {
+        // Enrollment deletion successful
+        console.log('Enrollment deleted successfully');
+        // Update the UI by refetching enrollments
+        fetchEnrollments();
+      } else {
+        // Handle error if enrollment deletion failed
+        console.error('Failed to delete enrollment:', response.statusText);
+        // Display error message or handle it as per your UI requirements
+      }
+    } catch (error) {
+      // Handle any network errors
+      console.error('Error deleting enrollment:', error);
+      // Display error message or handle it as per your UI requirements
+    }
   };
 
 
@@ -215,6 +259,10 @@ const StudentPage = () => {
             <th>Course Number</th>
             <th>Course Title</th>
             <th>Units</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Days of the Week</th>
+            <th>Room Number</th>
             <th>Description</th>
             <th>Action</th>
           </tr>
@@ -225,6 +273,10 @@ const StudentPage = () => {
               <td>{course.CourseID}</td>
               <td>{course.CourseName}</td>
               <td>{course.credits}</td>
+              <td>{}</td>
+              <td>{}</td>
+              <td>{}</td>
+              <td>{}</td>
               <td>{course.Description}</td>
               <td>
                 <Button onClick={() => handleEnroll(course.CourseID)}>Enroll</Button>
@@ -253,6 +305,8 @@ const StudentPage = () => {
           <tr>
             <th>Course Number</th>
             <th>Course Title</th>
+            <th>Units</th>
+            <th>Description</th>
             <th>Enrollment Date</th>
             <th>Action </th>
           </tr>
@@ -263,9 +317,11 @@ const StudentPage = () => {
             <tr key={enrollment.EnrollmentID}>
               <td>{enrollment.CourseInstanceID}</td>
               <td></td>
+              <td></td>
+              <td></td>
               <td>{new Date(enrollment.EnrollmentDate).toLocaleDateString()}</td>
               <td>
-                <Button>Drop</Button>
+                <Button onClick={() => handleDrop(enrollment.EnrollmentID)}>Drop</Button>
               </td>
             </tr>
           ))}

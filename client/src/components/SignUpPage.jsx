@@ -12,8 +12,9 @@ const SignUpPage = () => {
 
     //for nagivating to login page
     const navigate = useNavigate();
-
-
+        const handleLoginClick = () => {
+        navigate('/login');
+    };
 
     // Signup handler
     const handleSignUp = async (e) => {
@@ -61,6 +62,7 @@ const SignUpPage = () => {
                 <h2>Sign Up</h2>
                 <form onSubmit={handleSignUp}>
 
+                <div >
                     <div className="userType">
                         <label>User Type</label>
                         <select
@@ -121,13 +123,21 @@ const SignUpPage = () => {
                             onChange={(e) => setPassword(e.target.value)}
                         />
                     </div>
+                </div>
 
-                    <button type="submit">Sign Up</button>
-
+                <div className="mt-5">
+                    <button className="signup-button" type="submit">Sign Up</button>
+                </div>
                 </form>
 
             </div>
 
+            <div className="redirect">
+                <h4>Already have an account?</h4>
+                <button className="login-button" onClick={handleLoginClick}>
+                        Login
+                </button>
+            </div>
         </div>
     );
 
