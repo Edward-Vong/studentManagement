@@ -9,7 +9,7 @@ const NavBar = () => {
 
     return (
         <Navbar bg="light" expand="lg">
-            <Navbar.Brand>Student Manager App</Navbar.Brand>
+            <Navbar.Brand>EduControl FreakNite University 😜</Navbar.Brand>
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse id="basic-navbar-nav">
                 <Link to="/login">
