@@ -504,36 +504,27 @@ app.delete('/courses/:id', async (req, res) => {
 
 
 // Getting courses with their corresponding courseinstances
-app.get('/coursesWithInstances', async (req, res) => {
-  try {
-    // SQL query to join courses and courseinstances tables
-    const query = `
-      SELECT 
-        c.CourseID,
-        c.CourseName,
-        c.DepartmentID,
-        c.CourseCapacity,
-        c.credits,
-        c.Description,
-        ci.CourseInstanceID,
-        ci.StartTime,
-        ci.EndTime,
-        ci.DaysOfWeek,
-        ci.RoomID,
-        ci.InstructorID
-      FROM courses c
-      INNER JOIN courseinstances ci ON c.CourseID = ci.CourseID
-    `;
-  
-    // Execute the query
-    const [coursesWithInstances] = await connection.promise().execute(query);
-  
-    // Send the response with the joined data
-    res.status(200).json({ coursesWithInstances });
-  
-  } catch (error) {
-    // Handle errors
-    console.error('Error fetching courses with instances:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
+app.get('/api/courseinstance/:id', (req, res) => {
+  const courseInstanceID = req.params.id;
+
+  const query = `
+    SELECT ci.StartTime, ci.EndTime, ci.DaysOfWeek, ci.RoomID, ci.InstructorID
+    FROM courseinstances ci
+    INNER JOIN courses c ON ci.CourseID = c.CourseID
+    WHERE ci.CourseInstanceID = ?;
+  `;
+
+  connection.query(query, [courseInstanceID], (error, results) => {
+    if (error) {
+      res.status(500).json({ error: 'Internal Server Error' });
+      return;
+    }
+
+    if (results.length === 0) {
+      res.status(404).json({ error: 'Course instance not found' });
+      return;
+    }
+
+    res.json(results[0]);
+  });
 });
