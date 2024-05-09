@@ -105,3 +105,10 @@ input[type="password"]{
 .userType label {
     margin-right: 10px;
 }
+
+.error {
+    color: red;
+    font-weight: semi-bold;
+    padding: 8px;
+    margin-top: 5px;
+}

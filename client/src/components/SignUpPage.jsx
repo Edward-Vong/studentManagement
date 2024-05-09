@@ -9,6 +9,7 @@ const SignUpPage = () => {
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
 
     //for nagivating to login page
     const navigate = useNavigate();
@@ -19,6 +20,21 @@ const SignUpPage = () => {
     // Signup handler
     const handleSignUp = async (e) => {
         e.preventDefault();
+
+        // Reset error message
+        setError('');
+
+        // Check if email and password are not empty
+        if (email === '' || password === '') {
+           console.error('Email and password are required');
+            return;
+        }
+
+        // Check if password is at least 8 characters long
+        if (password.length < 8) {
+            setError('Password must be at least 8 characters long.');
+            return;
+        }
 
         // Construct userData object to match the database schema
         const userData = {
@@ -110,6 +126,7 @@ const SignUpPage = () => {
                             className="emailIN"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
+                            required
                         />
                         </div>
 
@@ -121,7 +138,9 @@ const SignUpPage = () => {
                             className="passwordIN"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
+                            required
                         />
+                        {error && <div className="error">{error}</div>}
                     </div>
                 </div>
 
