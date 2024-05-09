@@ -242,7 +242,7 @@ const fetchCoursesWithInstances = async () => {
   return (
     <Container>
       <NavBar />
-      <h1>Student Dashboard</h1>
+      <h1>FreakNite University: Spring 2024 😜</h1>
       <Row className="my-4">
         <Col>
           <Form.Control

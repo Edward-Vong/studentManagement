@@ -348,23 +348,22 @@ app.post('/enroll', async (req, res) => {
   }
 });
 
-
-app.get('/enrollments', async (req, res) => {
-  const { courseId } = req.query; 
+//gets the enrollments for the specific user 
+//most likely students + instructor???
+app.get('/enrollments', (req, res) => {
   try {
-      const query = 'SELECT * FROM enrollments WHERE CourseInstanceID = ?';
-      const [results] = await connection.promise().execute(query, [courseId]);
-      if (results.length > 0) {
-          res.json(results);
-      } else {
-          res.status(404).json({ message: 'No enrollments found for this course' });
+    connection.query('SELECT * FROM enrollments', (error, results) => {
+      if (error) {
+        console.error('Error executing MySQL query: ' + error.stack);
+        return res.status(500).json({ error: 'Internal Server Error' });
       }
+      res.json(results);
+    });
   } catch (error) {
-      console.error('Error fetching enrollments:', error);
-      res.status(500).json({ error: 'Internal Server Error', error });
+    console.error('Error occurred during database query: ' + error.stack);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
-
 
 app.get('/instructor-courses/:instructorId', async (req, res) => {
   const instructorId = req.params.instructorId;
@@ -486,12 +485,17 @@ app.put('/courses/:id', async (req, res) => {
   }
 });
 
-// Delete a course
 app.delete('/courses/:id', async (req, res) => {
   const courseId = req.params.id;
   try {
-    const query = 'DELETE FROM courses WHERE CourseID = ?';
-    const [result] = await connection.promise().execute(query, [courseId]);
+    // Delete dependent records from the courseinstances table
+    const deleteInstancesQuery = 'DELETE FROM courseinstances WHERE CourseID = ?';
+    await connection.promise().execute(deleteInstancesQuery, [courseId]);
+
+    // Now that dependent records are deleted, delete the course
+    const deleteCourseQuery = 'DELETE FROM courses WHERE CourseID = ?';
+    const [result] = await connection.promise().execute(deleteCourseQuery, [courseId]);
+
     if (result.affectedRows === 0) {
       res.status(404).json({ message: 'Course not found' });
     } else {
@@ -504,28 +508,57 @@ app.delete('/courses/:id', async (req, res) => {
 });
 
 
+
+
 // Getting courses with their corresponding courseinstances
-app.get('/api/courseinstance/:id', (req, res) => {
-  const courseInstanceID = req.params.id;
+app.get('/coursesWithInstances', async (req, res) => {
+  try {
+    // SQL query to join courses and courseinstances tables
+    const query = `
+      SELECT 
+        c.CourseID,
+        c.CourseName,
+        c.DepartmentID,
+        c.CourseCapacity,
+        c.credits,
+        c.Description,
+        ci.CourseInstanceID,
+        ci.StartTime,
+        ci.EndTime,
+        ci.DaysOfWeek,
+        ci.RoomID,
+        ci.InstructorID
+      FROM courses c
+      INNER JOIN courseinstances ci ON c.CourseID = ci.CourseID
+    `;
+  
+    // Execute the query
+    const [coursesWithInstances] = await connection.promise().execute(query);
+  
+    // Send the response with the joined data
+    res.status(200).json({ coursesWithInstances });
+  
+  } catch (error) {
+    // Handle errors
+    console.error('Error fetching courses with instances:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
-  const query = `
-    SELECT ci.StartTime, ci.EndTime, ci.DaysOfWeek, ci.RoomID, ci.InstructorID
-    FROM courseinstances ci
-    INNER JOIN courses c ON ci.CourseID = c.CourseID
-    WHERE ci.CourseInstanceID = ?;
-  `;
 
-  connection.query(query, [courseInstanceID], (error, results) => {
-    if (error) {
-      res.status(500).json({ error: 'Internal Server Error' });
-      return;
-    }
-
-    if (results.length === 0) {
-      res.status(404).json({ error: 'Course instance not found' });
-      return;
-    }
-
-    res.json(results[0]);
-  });
+//for instructor page
+app.get('/enrollmentss', async (req, res) => {
+  const { courseId } = req.query; 
+  try {
+      const query = 'SELECT * FROM enrollments WHERE CourseInstanceID = ?';
+      const [results] = await connection.promise().execute(query, [courseId]);
+      if (results.length > 0) {
+          res.json(results);
+      } else {
+          res.status(404).json({ message: 'No enrollments found for this course' });
+      }
+  } catch (error) {
+      console.error('Error fetching enrollments:', error);
+      res.status(500).json({ error: 'Internal Server Error', error });
+  }
 });

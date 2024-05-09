@@ -115,7 +115,12 @@ const handleDeleteCourse = async (courseId) => {
                 method: 'DELETE',
             });
             if (res.ok) {
-                fetchCourses(); // Refresh courses after deletion
+                const data = await res.json();
+                if (data.message === 'Course deleted successfully') {
+                    fetchCourses(); // Refresh courses after deletion
+                } else {
+                    throw new Error('Failed to delete this course');
+                }
             } else {
                 throw new Error('Failed to delete this course');
             }
@@ -124,6 +129,7 @@ const handleDeleteCourse = async (courseId) => {
         }
     }
 };
+
 
 const handleCloseCourseModal = () => {
     setShowEditCourseModal(false);
