@@ -24,6 +24,10 @@ const StudentPage = () => {
   //for showing error modal/popup when 
   //students that try to re-enroll again
   const [showEnrollmentError, setShowEnrollmentError] = useState(false); 
+  
+  //additional course information
+  const [showAdditionalModal, setShowAdditionalModal] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState(null);
 
 
     // Fetch studentID when the component mounts
@@ -85,20 +89,20 @@ const StudentPage = () => {
     }
   };
 
-  // Fetch courses along with course instances
-const fetchCoursesWithInstances = async () => {
-  try {
-    const response = await fetch('http://localhost:3000/coursesWithInstances');
-    if (response.ok) {
-      const data = await response.json();
-      setCoursesWithInstances(data);
-    } else {
-      throw new Error('Failed to fetch courses with instances');
+  // Fetch course instances
+  const fetchCoursesWithInstances = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/coursesWithInstances');
+      if (response.ok) {
+        const data = await response.json();
+        setCoursesWithInstances(data);
+      } else {
+        throw new Error('Failed to fetch courses with instances');
+      }
+    } catch (error) {
+      console.error('Error fetching courses with instances:', error);
     }
-  } catch (error) {
-    console.error('Error fetching courses with instances:', error);
-  }
-};
+  };
 
   // const fetchCourseInstances = async () => {
   //   try {
@@ -189,6 +193,23 @@ const fetchCoursesWithInstances = async () => {
   };
 
 
+  //for showing/closing additional course info modal
+  const handleShowAdditionalModal = (course) => {
+    const additionalCourseInfo = coursesWithInstances.find(c => c.CourseID === course.CourseID);
+    
+
+    if (additionalCourseInfo) {
+      setSelectedCourse(additionalCourseInfo);
+      setShowAdditionalModal(true);
+      console.log('Selected Course:', additionalCourseInfo);
+    } 
+  };
+
+  const handleCloseAdditionalModal = () => {
+    setShowAdditionalModal(false);
+  };
+
+
   //for dropping said courses that you've enrolled into 
   const handleDrop = async (enrollmentID) => {
     try {
@@ -259,10 +280,10 @@ const fetchCoursesWithInstances = async () => {
             <th>Course Number</th>
             <th>Course Title</th>
             <th>Units</th>
-            <th>Start Time</th>
+            {/* <th>Start Time</th>
             <th>End Time</th>
             <th>Days of the Week</th>
-            <th>Room Number</th>
+            <th>Room Number</th> */}
             <th>Description</th>
             <th>Action</th>
           </tr>
@@ -273,13 +294,14 @@ const fetchCoursesWithInstances = async () => {
               <td>{course.CourseID}</td>
               <td>{course.CourseName}</td>
               <td>{course.credits}</td>
+              {/* <td>{}</td>
               <td>{}</td>
               <td>{}</td>
-              <td>{}</td>
-              <td>{}</td>
+              <td>{}</td> */}
               <td>{course.Description}</td>
               <td>
                 <Button onClick={() => handleEnroll(course.CourseID)}>Enroll</Button>
+                <Button onClick={() => handleShowAdditionalModal(course)}>Show more</Button>
               </td>
             </tr>
           ))}
@@ -304,9 +326,9 @@ const fetchCoursesWithInstances = async () => {
         <thead>
           <tr>
             <th>Course Number</th>
-            <th>Course Title</th>
+            {/* <th>Course Title</th>
             <th>Units</th>
-            <th>Description</th>
+            <th>Description</th> */}
             <th>Enrollment Date</th>
             <th>Action </th>
           </tr>
@@ -316,9 +338,9 @@ const fetchCoursesWithInstances = async () => {
 
             <tr key={enrollment.EnrollmentID}>
               <td>{enrollment.CourseInstanceID}</td>
+              {/* <td></td>
               <td></td>
-              <td></td>
-              <td></td>
+              <td></td> */}
               <td>{new Date(enrollment.EnrollmentDate).toLocaleDateString()}</td>
               <td>
                 <Button onClick={() => handleDrop(enrollment.EnrollmentID)}>Drop</Button>
@@ -328,6 +350,7 @@ const fetchCoursesWithInstances = async () => {
         </tbody>
       </Table>
       
+      {/* This is to show that the class has already been enrolled to */}
       <Modal show={showEnrollmentError} onHide={handleCloseEnrollmentError}>
 
         <Modal.Header closeButton>
@@ -342,6 +365,56 @@ const fetchCoursesWithInstances = async () => {
           <Button variant="secondary" onClick={handleCloseEnrollmentError}> Close </Button>
         </Modal.Footer>
 
+
+      </Modal>
+
+      {/*This is to show additional class information */}
+      <Modal show={showAdditionalModal} onHide={handleCloseAdditionalModal}>
+
+        <Modal.Header closeButton>
+          <Modal.Title>Additional Course Information</Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body>
+          <Table striped bordered>
+            <tbody>
+              <tr>
+                <td>Department</td>
+                <td>{selectedCourse && selectedCourse.DepartmentID}</td>
+              </tr>
+              <tr>
+                <td>Start Time</td>
+                <td>{selectedCourse && selectedCourse.StartTime}</td>
+              </tr>
+              <tr>
+                <td>End Time</td>
+                <td>{selectedCourse && selectedCourse.EndTime}</td>
+              </tr>
+              <tr>
+                <td>Days of Week</td>
+                <td>{selectedCourse && selectedCourse.DaysOfWeek}</td>
+              </tr>
+              <tr>
+                <td>Room ID</td>
+                <td>{selectedCourse && selectedCourse.RoomID}</td>
+              </tr>
+              <tr>
+                <td>Instructor ID</td>
+                <td>{selectedCourse && selectedCourse.InstructorID}</td>
+              </tr>
+              <tr>
+                <td>Capacity</td>
+                <td>{selectedCourse && selectedCourse.CourseCapacity}</td>
+              </tr>
+            </tbody>
+          </Table>
+        </Modal.Body>
+
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseAdditionalModal}>
+            Close
+          </Button>
+        </Modal.Footer>
       </Modal>
     </Container>
   );
