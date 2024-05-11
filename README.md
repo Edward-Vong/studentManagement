@@ -305,8 +305,8 @@ In our case, we already had set up instructors that were at the 2, 3 and 4 IDs.
 
 Now, you'll probably want at least 1 admin user to manage everything. Just simply make an insert query into the users table like so: 
 
-**USERS (if needed)
-**
+**USERS (if needed)**
+
 INSERT INTO users (UserID, FirstName, LastName, Email, Password, Role, DepartmentID)
 VALUES (1, 'Name', 'Name', 'email@gmail.com', 'PWthatwillbehashedsorememberit', 'Admin', NULL);
 
