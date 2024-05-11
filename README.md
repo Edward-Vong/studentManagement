@@ -193,6 +193,8 @@ For starters, the only two tables that dont have foreign keys are the department
 
 In our case, we only made 1 department to make it easier for ourselves:
 
+**DEPARTMENTS** 
+
 INSERT INTO departments (DepartmentID, DepartmentName, CollegeName) 
 VALUES (1, 'Computer Science', 'Engineering');
 
@@ -202,6 +204,8 @@ However you can create as many departments as needed. Just make sure that you re
 Next for rooms, it's the same thing in that you can create as different and as many as you want. Just make sure you reference them properly in other tables. 
 
 In our case, these rows were plenty: 
+
+**ROOMS** 
 
 INSERT INTO rooms (RoomID, Building, RoomNum, Capacity)
 VALUES
@@ -242,6 +246,7 @@ Now for courses. Again, you can create as different and as many as you want. Jus
 
 We started off with 15 entries shown below: 
 
+**COURSES**
 
 INSERT INTO `courses` (`CourseID`, `CourseName`, `DepartmentID`, `CourseCapacity`, `credits`, `Description`)
 VALUES 
@@ -266,6 +271,7 @@ This is the critical part and what might make the program not run properly: crea
 
 Our courseinstances table that matches the 15 entries above. 
 
+**COURSEINSTANCES**
 
 INSERT INTO courseinstances (CourseInstanceID, CourseID, StartTime, EndTime, DaysOfWeek, RoomID, InstructorID)
 VALUES 
@@ -299,7 +305,8 @@ In our case, we already had set up instructors that were at the 2, 3 and 4 IDs.
 
 Now, you'll probably want at least 1 admin user to manage everything. Just simply make an insert query into the users table like so: 
 
-
+**USERS (if needed)
+**
 INSERT INTO users (UserID, FirstName, LastName, Email, Password, Role, DepartmentID)
 VALUES (1, 'Name', 'Name', 'email@gmail.com', 'PWthatwillbehashedsorememberit', 'Admin', NULL);
 
