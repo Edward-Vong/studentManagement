@@ -242,6 +242,7 @@ Now for courses. Again, you can create as different and as many as you want. Jus
 
 We started off with 15 entries shown below: 
 
+
 INSERT INTO `courses` (`CourseID`, `CourseName`, `DepartmentID`, `CourseCapacity`, `credits`, `Description`)
 VALUES 
 (NULL, 'Introduction to Computer Science', 1, 30, 3, 'An introductory course covering fundamental concepts of computer science.'),
@@ -264,6 +265,7 @@ VALUES
 This is the critical part and what might make the program not run properly: creating courseinstances that match with the courses. 
 
 Our courseinstances table that matches the 15 entries above. 
+
 
 INSERT INTO courseinstances (CourseInstanceID, CourseID, StartTime, EndTime, DaysOfWeek, RoomID, InstructorID)
 VALUES 
@@ -297,6 +299,7 @@ In our case, we already had set up instructors that were at the 2, 3 and 4 IDs.
 
 Now, you'll probably want at least 1 admin user to manage everything. Just simply make an insert query into the users table like so: 
 
+
 INSERT INTO users (UserID, FirstName, LastName, Email, Password, Role, DepartmentID)
 VALUES (1, 'Name', 'Name', 'email@gmail.com', 'PWthatwillbehashedsorememberit', 'Admin', NULL);
 
@@ -306,14 +309,18 @@ It is autoincrement though, so if you leave the UserID as NULL, that should be f
 To actually launch the project, make sure to open up two console windows in your IDE (We're going to assume it's VSCode). 
 Then, you'll want to:
 
+
 cd Client 
 npm run dev
+
 
 (Click/navigate to localhost on your browser)
 
 on one console. Then:
 
+
 cd Server
 node server.js
+
 
 At this point, you should be able to run the project all the way through!
